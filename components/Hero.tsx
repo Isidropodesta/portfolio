@@ -4,8 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 
-// ─── Constantes ───────────────────────────────────────────────────────────────
-const IDLE_IMAGE = 'https://i.imgur.com/umag5qQ.png';
+const AVATAR_URL = 'https://i.imgur.com/llRbYLK.png';
 
 type Message = { role: 'user' | 'bot'; text: string; hasWhatsApp?: boolean };
 
@@ -20,7 +19,7 @@ type ChipKey = typeof CHIPS[number]['key'];
 
 const RESPONSES: Record<ChipKey, { text: string; hasWhatsApp?: boolean }> = {
   quien: {
-    text: 'Soy estudiante de último año de Ingeniería en Sistemas en la UTN Mendoza. Tengo una mentalidad orientada a resolver problemas reales — no me interesa el código por el código, sino lo que ese código puede hacer por una empresa o persona. Me apasiona entender cómo funciona un negocio, encontrar dónde la tecnología puede hacer la diferencia y construir la solución adecuada. Combino formación técnica sólida con visión práctica: quiero que lo que construyo genere impacto real, no solo que funcione.',
+    text: 'Soy estudiante de último año de Ingeniería en Sistemas en la UTN Mendoza. Tengo una mentalidad orientada a resolver problemas reales — no me interesa el código por el código, sino lo que ese código puede hacer por una empresa o persona. Me apasiona entender cómo funciona un negocio, encontrar dónde la tecnología puede hacer la diferencia y construir la solución adecuada.',
   },
   sistemas: {
     text: 'Construyo sistemas web completos desde cero: páginas web, sistemas de gestión, tiendas online y APIs. Me encargo de todo — desde la base de datos hasta lo que ve el usuario final.',
@@ -35,10 +34,10 @@ const RESPONSES: Record<ChipKey, { text: string; hasWhatsApp?: boolean }> = {
 };
 
 const KEYWORD_MAP: Array<{ keywords: string[]; key: ChipKey }> = [
-  { keywords: ['quién','quien','sos','isidro','vos','presentate'],                    key: 'quien'     },
-  { keywords: ['sistemas','construís','construis','web','aplicacion','desarrollas'],  key: 'sistemas'  },
-  { keywords: ['tecnolog','stack','react','node','herramienta','lenguaje','framework'], key: 'tech'    },
-  { keywords: ['contratar','trabajo','proyecto','servicio','freelance','precio'],      key: 'contratar' },
+  { keywords: ['quién','quien','sos','isidro','vos','presentate'],                     key: 'quien'     },
+  { keywords: ['sistemas','construís','construis','web','aplicacion','desarrollas'],   key: 'sistemas'  },
+  { keywords: ['tecnolog','stack','react','node','herramienta','lenguaje','framework'], key: 'tech'     },
+  { keywords: ['contratar','trabajo','proyecto','servicio','freelance','precio'],       key: 'contratar' },
 ];
 
 function detectKey(input: string): ChipKey | null {
@@ -46,7 +45,9 @@ function detectKey(input: string): ChipKey | null {
   return KEYWORD_MAP.find((m) => m.keywords.some((k) => lower.includes(k)))?.key ?? null;
 }
 
-// ─── Componente ───────────────────────────────────────────────────────────────
+// Overlap del avatar dentro del chat box (mismo en mobile y desktop)
+const OVERLAP = 76;
+
 export default function Hero() {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'bot', text: '¡Hola! Soy una IA entrenada con información sobre Isidro. ¿Qué querés saber?' },
@@ -54,16 +55,16 @@ export default function Hero() {
   const [input,  setInput]  = useState('');
   const [typing, setTyping] = useState(false);
 
-  const avatarRef  = useRef<HTMLDivElement>(null);
+  const avatarRef  = useRef<HTMLImageElement>(null);
   const floatTween = useRef<gsap.core.Tween | null>(null);
   const bottomRef  = useRef<HTMLDivElement>(null);
 
-  // ── Flotación idle ────────────────────────────────────────────────────────
+  // ── Float continuo ─────────────────────────────────────────────────────────
   const startFloat = useCallback(() => {
     floatTween.current?.kill();
     if (!avatarRef.current) return;
     floatTween.current = gsap.to(avatarRef.current, {
-      y: -10,
+      y: -12,
       duration: 3,
       ease: 'sine.inOut',
       yoyo: true,
@@ -72,31 +73,34 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
+    if (avatarRef.current) {
+      avatarRef.current.style.transformOrigin = 'center bottom';
+    }
     startFloat();
     return () => { floatTween.current?.kill(); };
   }, [startFloat]);
 
-  // ── Bounce al clickear chip ────────────────────────────────────────────────
+  // ── Bounce scale al enviar ─────────────────────────────────────────────────
   const triggerBounce = useCallback(() => {
     const el = avatarRef.current;
     if (!el) return;
-    floatTween.current?.kill();
+    floatTween.current?.pause();
     gsap.to(el, {
-      y: -18,
-      duration: 0.14,
+      scale: 1.06,
+      duration: 0.15,
       ease: 'power2.out',
       onComplete: () => {
         gsap.to(el, {
-          y: 0,
-          duration: 0.5,
-          ease: 'bounce.out',
+          scale: 1,
+          duration: 0.35,
+          ease: 'elastic.out(1, 0.5)',
           onComplete: startFloat,
         });
       },
     });
   }, [startFloat]);
 
-  // ── Auto-scroll chat ───────────────────────────────────────────────────────
+  // ── Auto-scroll ────────────────────────────────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
@@ -119,7 +123,6 @@ export default function Hero() {
     }, 800);
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <section
       id="inicio"
@@ -131,39 +134,35 @@ export default function Hero() {
       </div>
       <div className="pointer-events-none absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-violet/7 blur-[110px]" />
 
-      <div className="relative z-10 w-full max-w-[680px] flex flex-col items-center">
+      {/*
+       * Wrapper principal.
+       * padding-top = (altura avatar) - OVERLAP
+       *   mobile:  280 - 76 = 204px
+       *   desktop: 420 - 76 = 344px
+       * El avatar está absolutamente posicionado en top:0.
+       * El chat comienza después del padding, así que el avatar
+       * lo "tapa" 76px hacia abajo (OVERLAP).
+       */}
+      <div className="relative z-10 w-full max-w-[680px] pt-[204px] sm:pt-[344px]">
 
         {/* ── AVATAR ─────────────────────────────────────────────────────────
-         *  Usa mix-blend-mode: multiply para fusionar el fondo blanco/gris
-         *  con el fondo oscuro de la página. Se posiciona con mb negativo
-         *  para que "sobresalga" por encima del chat box.
+         *  PNG sin fondo, position absolute, top 0, centrado.
+         *  z-20 para estar por encima del chat (z-10).
          */}
-        <div
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           ref={avatarRef}
-          className="relative z-20 flex justify-center"
-          style={{ marginBottom: -72 }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={IDLE_IMAGE}
-            alt="Isidro Podestá"
-            style={{
-              width: 230,
-              height: 340,
-              objectFit: 'cover',
-              objectPosition: 'top center',
-              mixBlendMode: 'multiply',
-              display: 'block',
-              userSelect: 'none',
-              pointerEvents: 'none',
-            }}
-            draggable={false}
-          />
-        </div>
+          src={AVATAR_URL}
+          alt="Isidro Podestá"
+          className="absolute top-0 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none
+                     h-[280px] sm:h-[420px] w-auto"
+          draggable={false}
+        />
 
         {/* ── CHAT BOX ───────────────────────────────────────────────────────
-         *  z-10 (debajo del avatar). El spacer de 72px al inicio empuja
-         *  el contenido visible por debajo de los pies del avatar.
+         *  z-10 (debajo del avatar).
+         *  El spacer inicial empuja el contenido por debajo de los pies
+         *  del avatar (los 76px que se solapan con el chat).
          */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -171,8 +170,8 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="relative z-10 w-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(59,158,255,0.07)]"
         >
-          {/* Espacio para los pies del avatar */}
-          <div style={{ height: 72 }} />
+          {/* Espacio reservado para el overlap del avatar */}
+          <div style={{ height: OVERLAP }} />
 
           {/* Header */}
           <div className="flex flex-col px-5 py-3 border-t border-b border-white/[0.07] bg-white/[0.02]">
@@ -181,7 +180,7 @@ export default function Hero() {
           </div>
 
           {/* Mensajes */}
-          <div className="px-4 py-4 flex flex-col gap-3 max-h-60 overflow-y-auto">
+          <div className="px-4 py-4 flex flex-col gap-3 max-h-56 overflow-y-auto">
             <AnimatePresence initial={false}>
               {messages.map((msg, i) => (
                 <motion.div
@@ -272,7 +271,7 @@ export default function Hero() {
         <motion.p
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="text-slate-500 text-sm select-none mt-6"
+          className="text-slate-500 text-sm select-none text-center mt-6"
         >
           Scroll para explorar ↓
         </motion.p>
