@@ -58,9 +58,9 @@ export default function Nav() {
           href="https://wa.me/549261512980"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/10 border border-accent/30 text-accent text-sm font-medium hover:bg-accent/20 hover:border-accent/50 transition-all duration-200"
+          className="btn-cta hidden md:inline-flex items-center px-4 py-2 rounded-lg bg-accent/10 border border-accent/30 text-accent text-sm font-medium hover:bg-accent/20 hover:border-accent/60 transition-colors duration-200"
         >
-          📅 Reservar llamada
+          Reservar llamada
         </a>
 
         {/* Mobile hamburger */}
@@ -99,9 +99,9 @@ export default function Nav() {
             href="https://wa.me/549261512980"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-accent text-sm font-medium"
+            className="text-accent text-sm font-medium"
           >
-            📅 Reservar llamada
+            Reservar llamada
           </a>
         </div>
       )}

@@ -11,7 +11,16 @@
       "Bash(curl -s --max-time 5 http://localhost:3000)",
       "Bash(npx tsc *)",
       "WebFetch(domain:www.pszostak.pl)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(vercel *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git push *)",
+      "Bash(curl *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:d.get\\(k\\) for k in ['id','name','ssoProtection','passwordProtection','protectionBypass']}, indent=2\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('ssoProtection'\\), d.get\\('name'\\)\\)\")",
+      "Bash(git config *)",
+      "Bash(git commit *)"
     ]
   }
 }

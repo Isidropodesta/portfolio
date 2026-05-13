@@ -3,32 +3,24 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
-import { removeBackground } from '@/lib/removeBackground';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type PoseKey = 'idle' | 'quien' | 'sistemas' | 'tech' | 'contratar';
-type Message  = { role: 'user' | 'bot'; text: string; hasWhatsApp?: boolean };
+// ─── Constantes ───────────────────────────────────────────────────────────────
+const IDLE_IMAGE = 'https://i.imgur.com/umag5qQ.png';
 
-// ─── Avatar images (PNG, transparent background) ──────────────────────────────
-const IMAGES: Record<PoseKey, string> = {
-  idle:      'https://i.imgur.com/umag5qQ.png',
-  quien:     'https://i.imgur.com/GlQg1hn.png',
-  sistemas:  'https://i.imgur.com/kkrlJ0v.png',
-  tech:      'https://i.imgur.com/01bDvYN.png',
-  contratar: 'https://i.imgur.com/KNhHcvJ.png',
-};
+type Message = { role: 'user' | 'bot'; text: string; hasWhatsApp?: boolean };
 
-// ─── Chat content ─────────────────────────────────────────────────────────────
-const CHIPS: Array<{ label: string; poseKey: Exclude<PoseKey, 'idle'> }> = [
-  { label: '¿Quién es Isidro?',                poseKey: 'quien'    },
-  { label: '¿Qué sistemas construís?',          poseKey: 'sistemas' },
-  { label: '¿Con qué tecnologías trabajás?',    poseKey: 'tech'     },
-  { label: '¿Cómo contratarme?',               poseKey: 'contratar'},
-];
+const CHIPS = [
+  { label: '¿Quién es Isidro?',             key: 'quien'     },
+  { label: '¿Qué sistemas construís?',       key: 'sistemas'  },
+  { label: '¿Con qué tecnologías trabajás?', key: 'tech'      },
+  { label: '¿Cómo contratarme?',            key: 'contratar' },
+] as const;
 
-const RESPONSES: Record<Exclude<PoseKey, 'idle'>, { text: string; hasWhatsApp?: boolean }> = {
+type ChipKey = typeof CHIPS[number]['key'];
+
+const RESPONSES: Record<ChipKey, { text: string; hasWhatsApp?: boolean }> = {
   quien: {
-    text: 'Soy estudiante de último año de Ingeniería en Sistemas en la UTN Mendoza. Tengo una mentalidad orientada a resolver problemas reales — no me interesa el código por el código, sino lo que ese código puede hacer por una empresa o persona. Me apasiona entender cómo funciona un negocio, encontrar dónde la tecnología puede hacer la diferencia y construir la solución adecuada. Combino formación técnica sólida con visión práctica: quiero que lo que construyo genere impacto real, no solo que funcione. Estoy en ese momento donde la carrera y los proyectos propios se fusionan, y el resultado es alguien que ya está construyendo mientras termina de formarse.',
+    text: 'Soy estudiante de último año de Ingeniería en Sistemas en la UTN Mendoza. Tengo una mentalidad orientada a resolver problemas reales — no me interesa el código por el código, sino lo que ese código puede hacer por una empresa o persona. Me apasiona entender cómo funciona un negocio, encontrar dónde la tecnología puede hacer la diferencia y construir la solución adecuada. Combino formación técnica sólida con visión práctica: quiero que lo que construyo genere impacto real, no solo que funcione.',
   },
   sistemas: {
     text: 'Construyo sistemas web completos desde cero: páginas web, sistemas de gestión, tiendas online y APIs. Me encargo de todo — desde la base de datos hasta lo que ve el usuario final.',
@@ -42,73 +34,36 @@ const RESPONSES: Record<Exclude<PoseKey, 'idle'>, { text: string; hasWhatsApp?: 
   },
 };
 
-const KEYWORD_MAP: Array<{ keywords: string[]; key: Exclude<PoseKey, 'idle'> }> = [
-  { keywords: ['quién','quien','sos','isidro','vos','presentate'],               key: 'quien'    },
-  { keywords: ['sistemas','construís','construis','web','aplicacion','desarrollas'], key: 'sistemas' },
-  { keywords: ['tecnolog','stack','react','node','herramienta','lenguaje','framework'], key: 'tech'  },
-  { keywords: ['contratar','trabajo','proyecto','servicio','freelance','precio','tarifa'], key: 'contratar' },
+const KEYWORD_MAP: Array<{ keywords: string[]; key: ChipKey }> = [
+  { keywords: ['quién','quien','sos','isidro','vos','presentate'],                    key: 'quien'     },
+  { keywords: ['sistemas','construís','construis','web','aplicacion','desarrollas'],  key: 'sistemas'  },
+  { keywords: ['tecnolog','stack','react','node','herramienta','lenguaje','framework'], key: 'tech'    },
+  { keywords: ['contratar','trabajo','proyecto','servicio','freelance','precio'],      key: 'contratar' },
 ];
 
-function detectKey(input: string): Exclude<PoseKey, 'idle'> | null {
+function detectKey(input: string): ChipKey | null {
   const lower = input.toLowerCase();
   return KEYWORD_MAP.find((m) => m.keywords.some((k) => lower.includes(k)))?.key ?? null;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Componente ───────────────────────────────────────────────────────────────
 export default function Hero() {
-  // Chat state
   const [messages, setMessages] = useState<Message[]>([
     { role: 'bot', text: '¡Hola! Soy una IA entrenada con información sobre Isidro. ¿Qué querés saber?' },
   ]);
   const [input,  setInput]  = useState('');
   const [typing, setTyping] = useState(false);
 
-  // Avatar state — ref mirrors state to avoid stale closures in GSAP callbacks
-  const [poseState, setPoseState] = useState<PoseKey>('idle');
-  const poseRef = useRef<PoseKey>('idle');
-  const setPose = useCallback((p: PoseKey) => {
-    poseRef.current = p;
-    setPoseState(p);
-  }, []);
+  const avatarRef  = useRef<HTMLDivElement>(null);
+  const floatTween = useRef<gsap.core.Tween | null>(null);
+  const bottomRef  = useRef<HTMLDivElement>(null);
 
-  // Processed image URLs (background removed via canvas flood fill)
-  const [srcs, setSrcs] = useState<Record<PoseKey, string>>(IMAGES);
-  const [avatarReady, setAvatarReady] = useState(false);
-
-  // Refs
-  const avatarRef   = useRef<HTMLDivElement>(null);
-  const floatTween  = useRef<gsap.core.Tween | null>(null);
-  const returnTimer = useRef<ReturnType<typeof setTimeout>>();
-  const busy        = useRef(false);
-  const bottomRef   = useRef<HTMLDivElement>(null);
-
-  // ── Process images: remove white/gray background via canvas flood fill ──────
-  useEffect(() => {
-    let cancelled = false;
-
-    // Process idle first so the avatar appears quickly
-    const order: PoseKey[] = ['idle', 'quien', 'sistemas', 'tech', 'contratar'];
-
-    async function run() {
-      for (const key of order) {
-        if (cancelled) break;
-        const clean = await removeBackground(IMAGES[key]);
-        if (cancelled) break;
-        setSrcs((prev) => ({ ...prev, [key]: clean }));
-        if (key === 'idle') setAvatarReady(true);
-      }
-    }
-
-    run();
-    return () => { cancelled = true; };
-  }, []);
-
-  // ── Float animation ────────────────────────────────────────────────────────
+  // ── Flotación idle ────────────────────────────────────────────────────────
   const startFloat = useCallback(() => {
     floatTween.current?.kill();
     if (!avatarRef.current) return;
     floatTween.current = gsap.to(avatarRef.current, {
-      y: -8,
+      y: -10,
       duration: 3,
       ease: 'sine.inOut',
       yoyo: true,
@@ -118,10 +73,27 @@ export default function Hero() {
 
   useEffect(() => {
     startFloat();
-    return () => {
-      floatTween.current?.kill();
-      clearTimeout(returnTimer.current);
-    };
+    return () => { floatTween.current?.kill(); };
+  }, [startFloat]);
+
+  // ── Bounce al clickear chip ────────────────────────────────────────────────
+  const triggerBounce = useCallback(() => {
+    const el = avatarRef.current;
+    if (!el) return;
+    floatTween.current?.kill();
+    gsap.to(el, {
+      y: -18,
+      duration: 0.14,
+      ease: 'power2.out',
+      onComplete: () => {
+        gsap.to(el, {
+          y: 0,
+          duration: 0.5,
+          ease: 'bounce.out',
+          onComplete: startFloat,
+        });
+      },
+    });
   }, [startFloat]);
 
   // ── Auto-scroll chat ───────────────────────────────────────────────────────
@@ -129,67 +101,15 @@ export default function Hero() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
 
-  // ── Pose change — exact GSAP pattern as specified ─────────────────────────
-  const changePose = useCallback(
-    (newPose: PoseKey) => {
-      if (busy.current || newPose === poseRef.current) return;
-      busy.current = true;
-      clearTimeout(returnTimer.current);
-
-      const el = avatarRef.current;
-      if (!el) { busy.current = false; return; }
-
-      floatTween.current?.kill();
-
-      gsap.to(el, {
-        y: 20,
-        opacity: 0,
-        duration: 0.2,
-        onComplete: () => {
-          // Swap image while invisible
-          setPose(newPose);
-
-          // Wait two frames for React to commit the new src
-          requestAnimationFrame(() =>
-            requestAnimationFrame(() => {
-              gsap.fromTo(
-                el,
-                { y: -20, opacity: 0 },
-                {
-                  y: 0,
-                  opacity: 1,
-                  duration: 0.3,
-                  ease: 'power2.out',
-                  onComplete: () => {
-                    busy.current = false;
-                    startFloat();
-
-                    // Return to idle after 3s
-                    if (newPose !== 'idle') {
-                      returnTimer.current = setTimeout(() => {
-                        changePose('idle');
-                      }, 3000);
-                    }
-                  },
-                }
-              );
-            })
-          );
-        },
-      });
-    },
-    [startFloat, setPose]
-  );
-
-  // ── Chat message sender ────────────────────────────────────────────────────
-  function sendMessage(text: string, poseOverride?: Exclude<PoseKey, 'idle'>) {
+  // ── Enviar mensaje ─────────────────────────────────────────────────────────
+  function sendMessage(text: string, chipKey?: ChipKey) {
     const trimmed = text.trim();
     if (!trimmed) return;
     setMessages((prev) => [...prev, { role: 'user', text: trimmed }]);
     setInput('');
     setTyping(true);
-    const key = poseOverride ?? detectKey(trimmed);
-    if (key) changePose(key);
+    triggerBounce();
+    const key = chipKey ?? detectKey(trimmed);
     setTimeout(() => {
       const response = key
         ? RESPONSES[key]
@@ -197,12 +117,6 @@ export default function Hero() {
       setTyping(false);
       setMessages((prev) => [...prev, { role: 'bot', text: response.text, hasWhatsApp: response.hasWhatsApp }]);
     }, 800);
-  }
-
-  function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value;
-    setInput(val);
-    if (val.length === 1 && poseRef.current === 'idle') changePose('tech');
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -217,53 +131,56 @@ export default function Hero() {
       </div>
       <div className="pointer-events-none absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-violet/7 blur-[110px]" />
 
-      {/*
-       * ─────────────────────────────────────────────────────────────────────
-       * Vertical stack: [AVATAR] → [CHAT BOX] → [SCROLL HINT]
-       * All children are centered by the parent flex-col + items-center.
-       * ─────────────────────────────────────────────────────────────────────
-       */}
-      <div className="relative z-10 w-full max-w-[680px] flex flex-col items-center gap-5">
+      <div className="relative z-10 w-full max-w-[680px] flex flex-col items-center">
 
         {/* ── AVATAR ─────────────────────────────────────────────────────────
-         *  280px tall. Background removed via canvas flood fill.
-         *  Hidden (opacity 0) until the idle image is processed so there's
-         *  no flash of the original gray background.
+         *  Usa mix-blend-mode: multiply para fusionar el fondo blanco/gris
+         *  con el fondo oscuro de la página. Se posiciona con mb negativo
+         *  para que "sobresalga" por encima del chat box.
          */}
         <div
           ref={avatarRef}
-          className="flex items-end justify-center transition-opacity duration-300"
-          style={{ height: 280, opacity: avatarReady ? 1 : 0 }}
+          className="relative z-20 flex justify-center"
+          style={{ marginBottom: -72 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={srcs[poseState]}
-            alt="Isidro avatar"
-            style={{ height: 280, width: 'auto', display: 'block', userSelect: 'none' }}
+            src={IDLE_IMAGE}
+            alt="Isidro Podestá"
+            style={{
+              width: 230,
+              height: 340,
+              objectFit: 'cover',
+              objectPosition: 'top center',
+              mixBlendMode: 'multiply',
+              display: 'block',
+              userSelect: 'none',
+              pointerEvents: 'none',
+            }}
             draggable={false}
           />
         </div>
 
         {/* ── CHAT BOX ───────────────────────────────────────────────────────
-         *  Full width of the 680px container.
+         *  z-10 (debajo del avatar). El spacer de 72px al inicio empuja
+         *  el contenido visible por debajo de los pies del avatar.
          */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="w-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(59,158,255,0.07)]"
+          className="relative z-10 w-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(59,158,255,0.07)]"
         >
+          {/* Espacio para los pies del avatar */}
+          <div style={{ height: 72 }} />
+
           {/* Header */}
-          <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.07] bg-white/[0.02]">
-            <motion.span
-              animate={{ opacity: [1, 0.4, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-2 h-2 rounded-full bg-accent inline-block"
-            />
-            <span className="text-sm text-slate-400 font-mono">IP Assistant · Online</span>
+          <div className="flex flex-col px-5 py-3 border-t border-b border-white/[0.07] bg-white/[0.02]">
+            <span className="text-sm font-semibold text-slate-100 leading-tight">Preguntame sobre mí</span>
+            <span className="text-[11px] text-slate-500 font-mono mt-0.5">Respondido por Isidro · IA</span>
           </div>
 
-          {/* Messages */}
+          {/* Mensajes */}
           <div className="px-4 py-4 flex flex-col gap-3 max-h-60 overflow-y-auto">
             <AnimatePresence initial={false}>
               {messages.map((msg, i) => (
@@ -289,7 +206,7 @@ export default function Hero() {
                         rel="noopener noreferrer"
                         className="mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#25d366] hover:bg-[#22c55e] text-white text-sm font-semibold transition-all hover:scale-[1.02]"
                       >
-                        📲 Escribime por WhatsApp
+                        Escribime por WhatsApp
                       </a>
                     )}
                   </div>
@@ -324,8 +241,8 @@ export default function Hero() {
           <div className="px-4 py-3 border-t border-white/[0.07] flex flex-wrap gap-2">
             {CHIPS.map((chip) => (
               <button
-                key={chip.poseKey}
-                onClick={() => sendMessage(chip.label, chip.poseKey)}
+                key={chip.key}
+                onClick={() => sendMessage(chip.label, chip.key)}
                 className="text-xs px-3 py-1.5 rounded-full bg-accent/[0.08] border border-accent/20 text-accent hover:bg-accent/[0.16] hover:border-accent/40 transition-all duration-200"
               >
                 {chip.label}
@@ -337,7 +254,7 @@ export default function Hero() {
           <div className="px-4 py-3 border-t border-white/[0.07] flex gap-2">
             <input
               value={input}
-              onChange={onInputChange}
+              onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(input); }}
               placeholder="Escribí tu pregunta..."
               className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-accent/40 focus:bg-white/[0.07] transition-all duration-200"
@@ -351,11 +268,11 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* ── SCROLL HINT ────────────────────────────────────────────────────── */}
+        {/* Scroll hint */}
         <motion.p
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-          className="text-slate-500 text-sm select-none"
+          className="text-slate-500 text-sm select-none mt-6"
         >
           Scroll para explorar ↓
         </motion.p>
