@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 
-const AVATAR_URL = 'https://i.imgur.com/llRbYLK.png';
+const AVATAR_URL = 'https://i.imgur.com/W1FcJ2c.png';
 
 type Message = { role: 'user' | 'bot'; text: string; hasWhatsApp?: boolean };
 
@@ -45,9 +45,6 @@ function detectKey(input: string): ChipKey | null {
   return KEYWORD_MAP.find((m) => m.keywords.some((k) => lower.includes(k)))?.key ?? null;
 }
 
-// Overlap del avatar dentro del chat box (mismo en mobile y desktop)
-const OVERLAP = 76;
-
 export default function Hero() {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'bot', text: '¡Hola! Soy una IA entrenada con información sobre Isidro. ¿Qué querés saber?' },
@@ -55,11 +52,11 @@ export default function Hero() {
   const [input,  setInput]  = useState('');
   const [typing, setTyping] = useState(false);
 
-  const avatarRef  = useRef<HTMLImageElement>(null);
+  const avatarRef = useRef<HTMLImageElement>(null);
   const floatTween = useRef<gsap.core.Tween | null>(null);
   const bottomRef  = useRef<HTMLDivElement>(null);
 
-  // ── Float continuo ─────────────────────────────────────────────────────────
+  // ── Flotación continua ─────────────────────────────────────────────────────
   const startFloat = useCallback(() => {
     floatTween.current?.kill();
     if (!avatarRef.current) return;
@@ -73,34 +70,17 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    if (avatarRef.current) {
-      avatarRef.current.style.transformOrigin = 'center bottom';
-    }
     startFloat();
     return () => { floatTween.current?.kill(); };
   }, [startFloat]);
 
-  // ── Bounce scale al enviar ─────────────────────────────────────────────────
+  // ── Bounce scale al clickear chip ──────────────────────────────────────────
   const triggerBounce = useCallback(() => {
-    const el = avatarRef.current;
-    if (!el) return;
-    floatTween.current?.pause();
-    gsap.to(el, {
-      scale: 1.06,
-      duration: 0.15,
-      ease: 'power2.out',
-      onComplete: () => {
-        gsap.to(el, {
-          scale: 1,
-          duration: 0.35,
-          ease: 'elastic.out(1, 0.5)',
-          onComplete: startFloat,
-        });
-      },
-    });
-  }, [startFloat]);
+    if (!avatarRef.current) return;
+    gsap.to(avatarRef.current, { scale: 1.05, duration: 0.2, yoyo: true, repeat: 1 });
+  }, []);
 
-  // ── Auto-scroll ────────────────────────────────────────────────────────────
+  // ── Auto-scroll chat ───────────────────────────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
@@ -126,7 +106,7 @@ export default function Hero() {
   return (
     <section
       id="inicio"
-      className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-10 dot-grid overflow-hidden"
+      className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-10 dot-grid overflow-visible"
     >
       {/* Ambient glows */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -135,46 +115,47 @@ export default function Hero() {
       <div className="pointer-events-none absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-violet/7 blur-[110px]" />
 
       {/*
-       * Wrapper principal.
-       * padding-top = (altura avatar) - OVERLAP
-       *   mobile:  280 - 76 = 204px
-       *   desktop: 420 - 76 = 344px
-       * El avatar está absolutamente posicionado en top:0.
-       * El chat comienza después del padding, así que el avatar
-       * lo "tapa" 76px hacia abajo (OVERLAP).
+       * Wrapper: position relative para que el avatar pueda usar
+       * bottom: calc(100% - 200px) y sobresalir por arriba del chat.
+       * El chat tiene margin-top: 200px que crea el espacio necesario.
        */}
-      <div className="relative z-10 w-full max-w-[680px] pt-[204px] sm:pt-[344px]">
+      <div className="relative z-10 w-full max-w-[680px]">
 
         {/* ── AVATAR ─────────────────────────────────────────────────────────
-         *  PNG sin fondo, position absolute, top 0, centrado.
-         *  z-20 para estar por encima del chat (z-10).
+         *  position absolute, bottom: calc(100% - 200px):
+         *    - 100% = altura del wrapper (chat height + 200px)
+         *    - calc(100% - 200px) = chat height → avatar bottom alinea con chat top
+         *  El avatar se extiende 200px hacia arriba del chat box.
+         *  GSAP anima directamente el img (y, scale).
+         *  translateX(-50%) se hace en el wrapper para no interferir con GSAP.
          */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          ref={avatarRef}
-          src={AVATAR_URL}
-          alt="Isidro Podestá"
-          className="absolute top-0 left-1/2 -translate-x-1/2 z-20 pointer-events-none select-none
-                     h-[280px] sm:h-[420px] w-auto"
-          draggable={false}
-        />
+        <div
+          className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+          style={{ bottom: 'calc(100% - 200px)' }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={avatarRef}
+            src={AVATAR_URL}
+            alt="Isidro Podestá"
+            style={{ height: 400, width: 'auto', display: 'block', userSelect: 'none' }}
+            draggable={false}
+          />
+        </div>
 
         {/* ── CHAT BOX ───────────────────────────────────────────────────────
-         *  z-10 (debajo del avatar).
-         *  El spacer inicial empuja el contenido por debajo de los pies
-         *  del avatar (los 76px que se solapan con el chat).
+         *  margin-top: 200px crea el espacio donde el avatar aparece.
+         *  z-index 5 (debajo del avatar z-10).
          */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="relative z-10 w-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(59,158,255,0.07)]"
+          className="relative z-[5] w-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(59,158,255,0.07)]"
+          style={{ marginTop: 200 }}
         >
-          {/* Espacio reservado para el overlap del avatar */}
-          <div style={{ height: OVERLAP }} />
-
           {/* Header */}
-          <div className="flex flex-col px-5 py-3 border-t border-b border-white/[0.07] bg-white/[0.02]">
+          <div className="flex flex-col px-5 py-3 border-b border-white/[0.07] bg-white/[0.02]">
             <span className="text-sm font-semibold text-slate-100 leading-tight">Preguntame sobre mí</span>
             <span className="text-[11px] text-slate-500 font-mono mt-0.5">Respondido por Isidro · IA</span>
           </div>
