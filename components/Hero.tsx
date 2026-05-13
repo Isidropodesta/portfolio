@@ -6,6 +6,24 @@ import gsap from 'gsap';
 
 const AVATAR_URL = 'https://i.imgur.com/W1FcJ2c.png';
 
+/*
+ * Layout del hero:
+ *
+ *  ┌─────────────────────────┐
+ *  │  ┌───────────────────┐  │  ← avatar container, 240px tall (head→waist)
+ *  │  │  IMG 320px tall   │  │    position: absolute, top: 0, overflow: hidden
+ *  │  │                   │  │
+ *  │  └───────────────────┘  │  ← avatar bottom = 240px
+ *  │  ─ ─ ─ chat top ─ ─ ─  │  ← margin-top: 140px  (100px protrusion = 240-140)
+ *  │  ┌───────────────────┐  │
+ *  │  │   CHAT BOX        │  │
+ *  │  └───────────────────┘  │
+ *  └─────────────────────────┘
+ *
+ *  protrusion = clip_height − chat_margin = 240 − 140 = 100 px ✓
+ *  Avatar z-20 > chat z-10 → el torso visible sobre el header del chat.
+ */
+
 type Message = { role: 'user' | 'bot'; text: string; hasWhatsApp?: boolean };
 
 const CHIPS = [
@@ -45,6 +63,11 @@ function detectKey(input: string): ChipKey | null {
   return KEYWORD_MAP.find((m) => m.keywords.some((k) => lower.includes(k)))?.key ?? null;
 }
 
+// Altura visible del avatar (head→waist). El resto se recorta con overflow hidden.
+const AVATAR_CLIP_H = 240;
+// Margen superior del chat. Protrusion = AVATAR_CLIP_H − CHAT_MARGIN = 100px.
+const CHAT_MARGIN_TOP = 140;
+
 export default function Hero() {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'bot', text: '¡Hola! Soy una IA entrenada con información sobre Isidro. ¿Qué querés saber?' },
@@ -52,11 +75,11 @@ export default function Hero() {
   const [input,  setInput]  = useState('');
   const [typing, setTyping] = useState(false);
 
-  const avatarRef = useRef<HTMLImageElement>(null);
+  const avatarRef  = useRef<HTMLImageElement>(null);
   const floatTween = useRef<gsap.core.Tween | null>(null);
   const bottomRef  = useRef<HTMLDivElement>(null);
 
-  // ── Flotación continua ─────────────────────────────────────────────────────
+  // ── Float continuo ─────────────────────────────────────────────────────────
   const startFloat = useCallback(() => {
     floatTween.current?.kill();
     if (!avatarRef.current) return;
@@ -74,7 +97,7 @@ export default function Hero() {
     return () => { floatTween.current?.kill(); };
   }, [startFloat]);
 
-  // ── Bounce scale al clickear chip ──────────────────────────────────────────
+  // ── Bounce scale al enviar / clickear chip ─────────────────────────────────
   const triggerBounce = useCallback(() => {
     if (!avatarRef.current) return;
     gsap.to(avatarRef.current, { scale: 1.05, duration: 0.2, yoyo: true, repeat: 1 });
@@ -106,7 +129,7 @@ export default function Hero() {
   return (
     <section
       id="inicio"
-      className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-10 dot-grid overflow-visible"
+      className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-10 dot-grid overflow-visible"
     >
       {/* Ambient glows */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -114,45 +137,44 @@ export default function Hero() {
       </div>
       <div className="pointer-events-none absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-violet/7 blur-[110px]" />
 
-      {/*
-       * Wrapper: position relative para que el avatar pueda usar
-       * bottom: calc(100% - 200px) y sobresalir por arriba del chat.
-       * El chat tiene margin-top: 200px que crea el espacio necesario.
-       */}
-      <div className="relative z-10 w-full max-w-[680px]">
+      {/* Wrapper con position relative — el avatar usa absolute dentro de aquí */}
+      <div className="relative z-10 w-full max-w-[640px]">
 
         {/* ── AVATAR ─────────────────────────────────────────────────────────
-         *  position absolute, bottom: calc(100% - 200px):
-         *    - 100% = altura del wrapper (chat height + 200px)
-         *    - calc(100% - 200px) = chat height → avatar bottom alinea con chat top
-         *  El avatar se extiende 200px hacia arriba del chat box.
-         *  GSAP anima directamente el img (y, scale).
-         *  translateX(-50%) se hace en el wrapper para no interferir con GSAP.
+         *  - position absolute, top: 0, centrado
+         *  - overflow hidden en el contenedor recorta desde la cintura para abajo
+         *  - El img es más alto (320px) que el contenedor (AVATAR_CLIP_H)
+         *  - z-20: aparece por delante del chat box (z-10)
          */}
         <div
-          className="absolute left-1/2 -translate-x-1/2 z-10 pointer-events-none"
-          style={{ bottom: 'calc(100% - 200px)' }}
+          className="absolute left-1/2 -translate-x-1/2 z-20 pointer-events-none overflow-hidden"
+          style={{ top: 0, height: AVATAR_CLIP_H, width: 'auto' }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={avatarRef}
             src={AVATAR_URL}
             alt="Isidro Podestá"
-            style={{ height: 400, width: 'auto', display: 'block', userSelect: 'none' }}
+            style={{
+              height: 320,
+              width: 'auto',
+              display: 'block',
+              userSelect: 'none',
+            }}
             draggable={false}
           />
         </div>
 
         {/* ── CHAT BOX ───────────────────────────────────────────────────────
-         *  margin-top: 200px crea el espacio donde el avatar aparece.
-         *  z-index 5 (debajo del avatar z-10).
+         *  margin-top: CHAT_MARGIN_TOP deja espacio para el avatar encima.
+         *  protrusion = AVATAR_CLIP_H − CHAT_MARGIN_TOP = 100px
          */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="relative z-[5] w-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(59,158,255,0.07)]"
-          style={{ marginTop: 200 }}
+          className="relative z-10 w-full bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(59,158,255,0.07)]"
+          style={{ marginTop: CHAT_MARGIN_TOP }}
         >
           {/* Header */}
           <div className="flex flex-col px-5 py-3 border-b border-white/[0.07] bg-white/[0.02]">
@@ -192,7 +214,6 @@ export default function Hero() {
                   </div>
                 </motion.div>
               ))}
-
               {typing && (
                 <motion.div
                   key="typing"
@@ -256,7 +277,6 @@ export default function Hero() {
         >
           Scroll para explorar ↓
         </motion.p>
-
       </div>
     </section>
   );
