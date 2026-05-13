@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/isidr/.claude/plugins/cache/claude-plugins-official/superpowers//**)",
+      "Read(//c/Users/isidr/.claude/plugins/cache//**)",
+      "Bash(bash *)",
+      "Bash(xargs cat *)",
+      "Bash(curl -s --max-time 3 http://localhost:57348)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(curl -s --max-time 5 http://localhost:3000)",
+      "Bash(npx tsc *)",
+      "WebFetch(domain:www.pszostak.pl)",
+      "WebSearch"
+    ]
+  }
+}
