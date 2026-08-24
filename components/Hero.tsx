@@ -58,8 +58,9 @@ export default function Hero() {
   const [input,  setInput]  = useState('');
   const [typing, setTyping] = useState(false);
 
-  const avatarImgRef = useRef<HTMLImageElement>(null);
-  const floatTween   = useRef<gsap.core.Tween | null>(null);
+  const avatarImgRef        = useRef<HTMLImageElement>(null);
+  const floatTween          = useRef<gsap.core.Tween | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const startFloat = useCallback(() => {
     floatTween.current?.kill();
@@ -77,6 +78,11 @@ export default function Hero() {
     startFloat();
     return () => { floatTween.current?.kill(); };
   }, [startFloat]);
+
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, typing]);
 
   const triggerBounce = useCallback(() => {
     if (!avatarImgRef.current) return;
@@ -168,6 +174,7 @@ export default function Hero() {
         >
           {/* Mensajes — padding-top compensa el área del avatar */}
           <div
+            ref={messagesContainerRef}
             className="px-5 pb-4 flex flex-col gap-2.5 max-h-64 overflow-y-auto"
             style={{ paddingTop: CHAT_PADDING_TOP }}
           >
