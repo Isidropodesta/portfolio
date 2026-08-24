@@ -45,11 +45,10 @@ function detectKey(input: string): ChipKey | null {
   return KEYWORD_MAP.find((m) => m.keywords.some((k) => lower.includes(k)))?.key ?? null;
 }
 
-// px del avatar que solapan dentro del chat (cubiertos por z-10)
-const AVATAR_OVERLAP = 72;
-// altura en layout del wrapper — el img con height:auto puede ser más alto,
-// el exceso queda en overflow:visible (arriba: libre; abajo: cubierto por chat)
-const CONTAINER_H = 250;
+// El chat sube CHAT_OVERLAP px sobre el avatar (tapa los pies).
+// CHAT_PADDING_TOP empuja el contenido por debajo del área del avatar.
+const CHAT_OVERLAP    = 80;
+const CHAT_PADDING_TOP = 120;
 
 export default function Hero() {
   const [messages, setMessages] = useState<Message[]>([
@@ -62,8 +61,7 @@ export default function Hero() {
   const floatTween   = useRef<gsap.core.Tween | null>(null);
   const bottomRef    = useRef<HTMLDivElement>(null);
 
-  // Float: GSAP anima translateY del img directamente.
-  // El wrapper (overflow:visible, height fija) nunca cambia de tamaño → sin gaps.
+  // Float: translateY sobre el img — no afecta el layout (sin gaps).
   const startFloat = useCallback(() => {
     floatTween.current?.kill();
     if (!avatarImgRef.current) return;
@@ -115,26 +113,22 @@ export default function Hero() {
       id="inicio"
       className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-10 dot-grid overflow-hidden"
     >
-      {/* Ambient glows */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="w-[600px] h-[600px] rounded-full bg-accent/8 blur-[140px]" />
-      </div>
-      <div className="pointer-events-none absolute top-1/3 left-1/4 w-[400px] h-[400px] rounded-full bg-violet/7 blur-[110px]" />
-
       <div className="relative z-10 w-full max-w-[620px] flex flex-col items-center">
 
-        {/* ── AVATAR WRAPPER ──────────────────────────────────────────────────
-         *  height: CONTAINER_H en layout (fija, no cambia con el float).
-         *  overflow: visible → img puede sobresalir arriba (float) y abajo (chat).
-         *  Centering con left/right:0 + margin:auto para que GSAP y: no compita
-         *  con ningún translateX de CSS.
+        {/* ── AVATAR ──────────────────────────────────────────────────────────
+         *  position: relative contiene el img (position: absolute, bottom: 0).
+         *  height: 300px → espacio vertical en layout.
+         *  overflow: visible → la cabeza puede sobresalir arriba durante el float
+         *  sin crear gaps en el layout (transform no afecta el flujo).
+         *  Centrado con left/right: 0 + margin: auto (sin translateX en CSS
+         *  para que GSAP y: no compita con transforms).
          */}
         <div
           style={{
-            height: CONTAINER_H,
-            overflow: 'visible',
-            width: '100%',
             position: 'relative',
+            height: 300,
+            width: '100%',
+            overflow: 'visible',
             flexShrink: 0,
           }}
         >
@@ -144,8 +138,7 @@ export default function Hero() {
             src={AVATAR_URL}
             alt="Isidro Podestá"
             style={{
-              maxWidth: 280,
-              width: 'auto',
+              width: 260,
               height: 'auto',
               objectFit: 'contain',
               display: 'block',
@@ -161,16 +154,18 @@ export default function Hero() {
         </div>
 
         {/* ── CHAT BOX ────────────────────────────────────────────────────────
-         *  z-10 cubre AVATAR_OVERLAP px de la img que sobresalen debajo del wrapper.
-         *  padding-top del área de mensajes = AVATAR_OVERLAP para que el texto
-         *  arranque justo debajo de los pies del avatar.
+         *  marginTop: -CHAT_OVERLAP → el chat sube y tapa los pies del avatar.
+         *  z-index: 10 → queda por encima del img.
+         *  paddingTop: CHAT_PADDING_TOP → el contenido arranca debajo del avatar.
          */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="relative z-10 w-full overflow-hidden"
+          className="relative w-full overflow-hidden"
           style={{
+            zIndex: 10,
+            marginTop: -CHAT_OVERLAP,
             background: 'rgba(255,255,255,0.04)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
@@ -181,8 +176,8 @@ export default function Hero() {
         >
           {/* Área de mensajes */}
           <div
-            className="px-6 pb-5 flex flex-col gap-3 max-h-64 overflow-y-auto"
-            style={{ paddingTop: AVATAR_OVERLAP + 8 }}
+            className="px-6 pb-5 flex flex-col gap-3 max-h-72 overflow-y-auto"
+            style={{ paddingTop: CHAT_PADDING_TOP }}
           >
             <AnimatePresence initial={false}>
               {messages.map((msg, i) => (
@@ -193,7 +188,7 @@ export default function Hero() {
                   transition={{ duration: 0.25 }}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {/* Mensaje inicial: texto centrado sin burbuja */}
+                  {/* Primer mensaje del bot: texto centrado sin burbuja */}
                   {i === 0 && msg.role === 'bot' ? (
                     <p
                       className="w-full text-center leading-relaxed"
@@ -256,10 +251,7 @@ export default function Hero() {
                 key={chip.key}
                 onClick={() => sendMessage(chip.label, chip.key)}
                 className="text-xs px-3.5 py-1.5 rounded-full text-accent transition-all duration-200 hover:shadow-[0_0_10px_rgba(59,158,255,0.2)]"
-                style={{
-                  background: 'transparent',
-                  border: '1px solid rgba(59,158,255,0.25)',
-                }}
+                style={{ background: 'transparent', border: '1px solid rgba(59,158,255,0.25)' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = 'rgba(59,158,255,0.08)';
                   e.currentTarget.style.borderColor = 'rgba(59,158,255,0.5)';
@@ -282,20 +274,14 @@ export default function Hero() {
               onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(input); }}
               placeholder="Escribí tu pregunta..."
               className="flex-1 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none transition-all duration-200"
-              style={{
-                background: 'rgba(0,0,0,0.3)',
-                border: '1px solid rgba(255,255,255,0.08)',
-              }}
+              style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)' }}
               onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(59,158,255,0.5)'; }}
               onBlur={(e)  => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
             />
             <button
               onClick={() => sendMessage(input)}
               className="px-4 py-2.5 rounded-xl text-accent font-bold transition-all duration-200"
-              style={{
-                background: 'rgba(59,158,255,0.1)',
-                border: '1px solid rgba(59,158,255,0.25)',
-              }}
+              style={{ background: 'rgba(59,158,255,0.1)', border: '1px solid rgba(59,158,255,0.25)' }}
               onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(59,158,255,0.2)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(59,158,255,0.1)'; }}
             >
