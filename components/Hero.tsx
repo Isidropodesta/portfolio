@@ -81,7 +81,8 @@ export default function Hero() {
 
   useEffect(() => {
     const el = messagesContainerRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
   }, [messages, typing]);
 
   const triggerBounce = useCallback(() => {
@@ -175,8 +176,8 @@ export default function Hero() {
           {/* Mensajes — padding-top compensa el área del avatar */}
           <div
             ref={messagesContainerRef}
-            className="px-5 pb-4 flex flex-col gap-2.5 max-h-64 overflow-y-auto"
-            style={{ paddingTop: CHAT_PADDING_TOP }}
+            className="px-5 pb-4 flex flex-col gap-2.5 overflow-y-auto"
+            style={{ paddingTop: CHAT_PADDING_TOP, maxHeight: 280 }}
           >
             <AnimatePresence initial={false}>
               {messages.map((msg, i) => (
