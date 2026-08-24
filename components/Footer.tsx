@@ -1,7 +1,7 @@
 const LINKS = [
   { label: 'GitHub', href: 'https://github.com/Isidropodesta' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/isidro-podesta-186b89332/' },
-  { label: 'WhatsApp', href: 'https://wa.me/549261512980' },
+  { label: 'WhatsApp', href: 'https://wa.me/5492615112980' },
 ];
 
 export default function Footer() {

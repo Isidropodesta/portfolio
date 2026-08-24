@@ -211,7 +211,7 @@ export default function Hero() {
                       {msg.text}
                       {msg.hasWhatsApp && (
                         <a
-                          href="https://wa.me/549261512980"
+                          href="https://wa.me/5492615112980"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="mt-2.5 flex items-center justify-center gap-2 text-white font-semibold transition-all hover:opacity-90 hover:scale-[1.02]"

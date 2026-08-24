@@ -55,7 +55,7 @@ export default function Nav() {
 
         {/* CTA button */}
         <a
-          href="https://wa.me/549261512980"
+          href="https://wa.me/5492615112980"
           target="_blank"
           rel="noopener noreferrer"
           className="btn-cta hidden md:inline-flex items-center px-4 py-2 rounded-lg bg-accent/10 border border-accent/30 text-accent text-sm font-medium hover:bg-accent/20 hover:border-accent/60 transition-colors duration-200"
@@ -96,7 +96,7 @@ export default function Nav() {
             ))}
           </ul>
           <a
-            href="https://wa.me/549261512980"
+            href="https://wa.me/5492615112980"
             target="_blank"
             rel="noopener noreferrer"
             className="text-accent text-sm font-medium"

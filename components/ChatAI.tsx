@@ -218,7 +218,7 @@ export default function ChatAI() {
                         {msg.text}
                         {msg.hasWhatsApp && (
                           <a
-                            href="https://wa.me/549261512980"
+                            href="https://wa.me/5492615112980"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#25d366] hover:bg-[#20c95f] text-white text-sm font-semibold transition-all duration-200 hover:scale-[1.02]"
