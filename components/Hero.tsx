@@ -10,10 +10,12 @@ const PAGE_BG    = '#0f0d1a';
 type Message = { role: 'user' | 'bot'; text: string; hasWhatsApp?: boolean };
 
 const CHIPS = [
-  { label: '¿Quién es Isidro?',             key: 'quien'     },
-  { label: '¿Qué sistemas construís?',       key: 'sistemas'  },
-  { label: '¿Con qué tecnologías trabajás?', key: 'tech'      },
-  { label: '¿Cómo contratarme?',            key: 'contratar' },
+  { label: '¿Quién es Isidro?',        key: 'quien'     },
+  { label: '¿Qué sistemas construís?', key: 'sistemas'  },
+  { label: '¿Cuánto cuesta?',          key: 'costo'     },
+  { label: '¿Cómo es el proceso?',     key: 'proceso'   },
+  { label: '¿Manejás plazos?',         key: 'plazos'    },
+  { label: '¿Cómo contratarme?',       key: 'contratar' },
 ] as const;
 
 type ChipKey = typeof CHIPS[number]['key'];
@@ -25,8 +27,17 @@ const RESPONSES: Record<ChipKey, { text: string; hasWhatsApp?: boolean }> = {
   sistemas: {
     text: 'Construyo sistemas web completos desde cero: páginas web, sistemas de gestión, tiendas online y APIs. Me encargo de todo — desde la base de datos hasta lo que ve el usuario final.',
   },
-  tech: {
-    text: 'Mi stack principal es React, Next.js, Node.js y PostgreSQL. También manejo TypeScript, Python, Docker, Tailwind y Git. Elijo la herramienta según lo que el proyecto necesita, no al revés.',
+  costo: {
+    text: 'Depende del proyecto — no hay un precio fijo porque cada sistema es diferente. Lo que sí puedo decirte es que la consulta inicial es completamente gratuita. Charlamos, entiendo qué necesitás y ahí te doy un presupuesto claro y sin sorpresas.',
+    hasWhatsApp: true,
+  },
+  proceso: {
+    text: 'Arrancamos con una videollamada o reunión personal donde me contás todo lo que querés lograr — funcionalidades, plazos, ideas. A partir de ahí defino los alcances del proyecto y empezamos.',
+    hasWhatsApp: true,
+  },
+  plazos: {
+    text: 'Los plazos dependen de la complejidad del proyecto. Desde el arranque definimos juntos una fecha estimada de entrega y trabajo para cumplirla.',
+    hasWhatsApp: true,
   },
   contratar: {
     text: 'La forma más directa es por WhatsApp — solemos arrancar con una charla de 15 minutos para entender qué necesitás. Sin compromisos, sin formularios, solo una conversación.',
@@ -35,10 +46,12 @@ const RESPONSES: Record<ChipKey, { text: string; hasWhatsApp?: boolean }> = {
 };
 
 const KEYWORD_MAP: Array<{ keywords: string[]; key: ChipKey }> = [
-  { keywords: ['quién','quien','sos','isidro','vos','presentate'],                     key: 'quien'     },
-  { keywords: ['sistemas','construís','construis','web','aplicacion','desarrollas'],   key: 'sistemas'  },
-  { keywords: ['tecnolog','stack','react','node','herramienta','lenguaje','framework'], key: 'tech'     },
-  { keywords: ['contratar','trabajo','proyecto','servicio','freelance','precio'],       key: 'contratar' },
+  { keywords: ['quién','quien','sos','isidro','vos','presentate'],                    key: 'quien'    },
+  { keywords: ['sistemas','construís','construis','web','aplicacion','desarrollas'],  key: 'sistemas' },
+  { keywords: ['cuesta','precio','costo','presupuesto','cobras','tarifa','cuánto'],   key: 'costo'    },
+  { keywords: ['proceso','cómo','como','empezamos','arranque','videollamada'],        key: 'proceso'  },
+  { keywords: ['plazo','entrega','tiempo','cuándo','cuando','demora'],                key: 'plazos'   },
+  { keywords: ['contratar','trabajo','servicio','freelance','empleo','contrato'],      key: 'contratar'},
 ];
 
 function detectKey(input: string): ChipKey | null {
