@@ -37,7 +37,7 @@ const SOCIALS = [
   },
   {
     label: 'WhatsApp',
-    value: '+54 9 261 512980',
+    value: '+54 9 2615 112980',
     href: 'https://wa.me/5492615112980',
     icon: (
       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
