@@ -73,7 +73,6 @@ export default function ChatAI() {
   const floatTween = useRef<gsap.core.Tween | null>(null);
   const returnTimer = useRef<ReturnType<typeof setTimeout>>();
   const busy = useRef(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
 
   // ── Preload all images ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -103,11 +102,6 @@ export default function ChatAI() {
       clearTimeout(returnTimer.current);
     };
   }, [startFloat]);
-
-  // ── Auto-scroll messages ─────────────────────────────────────────────────────
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, typing]);
 
   // ── Pose transition (GSAP) ───────────────────────────────────────────────────
   const changePose = useCallback(
@@ -257,7 +251,6 @@ export default function ChatAI() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                <div ref={bottomRef} />
               </div>
 
               {/* Chips */}
@@ -323,14 +316,6 @@ export default function ChatAI() {
 
           </div>
 
-          {/* Scroll indicator */}
-          <motion.p
-            animate={{ y: [0, 7, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="text-center mt-10 text-slate-500 text-sm select-none"
-          >
-            Scroll para explorar ↓
-          </motion.p>
         </motion.div>
       </div>
     </section>
