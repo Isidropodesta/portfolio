@@ -94,51 +94,17 @@ function BrowserMockup({
       </div>
 
       {/* Preview area */}
-      <div style={{ height: 180, background: gradient, position: 'relative', overflow: 'hidden' }}>
-        {/* Dot grid overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `radial-gradient(${accent}18 1px, transparent 1px)`,
-            backgroundSize: '22px 22px',
+      <div style={{ height: 180, background: gradient, overflow: 'hidden' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`}
+          alt={`Preview de ${url}`}
+          style={{ width: '100%', height: 180, objectFit: 'cover', objectPosition: 'top' }}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.parentElement!.style.background = gradient;
           }}
         />
-        {/* Simulated content blocks */}
-        {lines.map((l, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              top: l.top,
-              left: 20,
-              width: l.width,
-              height: l.height,
-              borderRadius: 4,
-              background: accent,
-              opacity: l.opacity,
-            }}
-          />
-        ))}
-        {/* Decorative floating dots */}
-        {dots.map((color, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              right: 20 + i * 28,
-              bottom: 20,
-              width: 32 - i * 4,
-              height: 32 - i * 4,
-              borderRadius: '50%',
-              background: color,
-              opacity: 0.18 + i * 0.05,
-              filter: 'blur(6px)',
-            }}
-          />
-        ))}
-        {/* Vignette */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(15,13,26,0.6) 100%)' }} />
       </div>
     </div>
   );
