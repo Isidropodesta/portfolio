@@ -1,40 +1,154 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ExternalLink } from 'lucide-react';
 
 const PROJECTS = [
   {
     number: '01',
     type: 'Aplicación Web',
-    title: 'Plataforma de Concesionaria',
+    title: 'Plataforma de Concesionaria "Ruedas"',
     description:
-      'Sistema completo de gestión para concesionaria de autos. Catálogo dinámico con filtros avanzados, panel de administración, gestión de clientes y sistema de consultas. API REST con base de datos en la nube.',
+      'Sistema de gestión para concesionaria de autos que desarrollé de forma independiente. Incluye catálogo dinámico con filtros, panel de administración y gestión de clientes. Un proyecto que me permitió aplicar arquitectura full stack completa de punta a punta.',
     stack: ['React', 'Node.js', 'PostgreSQL', 'Neon', 'Express'],
-    icon: '🚗',
-    gradient: 'from-blue-950/90 via-blue-900/60 to-[#0f0d1a]/80',
-    gridColor: '#3b9eff',
-    accentColor: '#3b9eff',
-    repo: 'https://github.com/Isidropodesta/ruedas',
+    url: 'https://ruedas-ochre.vercel.app',
+    accent: '#3b9eff',
+    mockupGradient: 'linear-gradient(135deg, #0a1628 0%, #0f2040 40%, #0a1a35 100%)',
+    mockupLines: [
+      { top: 32, width: '60%', opacity: 0.25, height: 12 },
+      { top: 58, width: '40%', opacity: 0.15, height: 10 },
+      { top: 88, width: '80%', opacity: 0.1, height: 8 },
+      { top: 108, width: '55%', opacity: 0.1, height: 8 },
+    ],
+    mockupDots: ['#3b9eff', '#1e6fbf', '#0a4080'],
   },
   {
     number: '02',
-    type: 'Herramienta / Diseño',
-    title: 'Generador de Fixtures Rugby',
+    type: 'Sitio Web · Impacto Social',
+    title: 'Crecer Felices',
     description:
-      'Herramienta visual para generar fixtures y posters del Torneo del Interior A. Escudos reales de equipos, datos actualizados y exportación en alta resolución.',
-    stack: ['React', 'SVG', 'Canvas API'],
-    icon: '🏉',
-    gradient: 'from-purple-950/90 via-violet-900/60 to-[#0f0d1a]/80',
-    gridColor: '#7b5ea7',
-    accentColor: '#7b5ea7',
-    repo: null,
+      'Sitio web oficial para Crecer Felices, organización sin fines de lucro con la que colaboro hace más de tres años. Un proyecto que me formó en responsabilidad, trabajo con organizaciones reales y desarrollo orientado a impacto social.',
+    stack: ['React', 'Next.js', 'Tailwind', 'Vercel'],
+    url: 'https://crecerfelices.vercel.app',
+    accent: '#22c55e',
+    mockupGradient: 'linear-gradient(135deg, #0a1a0f 0%, #0f2a18 40%, #0a1a10 100%)',
+    mockupLines: [
+      { top: 32, width: '55%', opacity: 0.25, height: 12 },
+      { top: 58, width: '38%', opacity: 0.15, height: 10 },
+      { top: 88, width: '75%', opacity: 0.1, height: 8 },
+      { top: 108, width: '50%', opacity: 0.1, height: 8 },
+    ],
+    mockupDots: ['#22c55e', '#16a34a', '#0a5c28'],
   },
 ];
+
+function BrowserMockup({
+  url,
+  accent,
+  gradient,
+  lines,
+  dots,
+}: {
+  url: string;
+  accent: string;
+  gradient: string;
+  lines: { top: number; width: string; opacity: number; height: number }[];
+  dots: string[];
+}) {
+  const domain = url.replace('https://', '');
+  return (
+    <div style={{ borderRadius: '10px 10px 0 0', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)', borderBottom: 'none' }}>
+      {/* Chrome bar */}
+      <div
+        style={{
+          background: '#10111e',
+          padding: '9px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}
+      >
+        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f57' }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#febc2e' }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28c840' }} />
+        </div>
+        <div
+          style={{
+            flex: 1,
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 6,
+            padding: '4px 10px',
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.3)',
+            fontFamily: 'monospace',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {domain}
+        </div>
+      </div>
+
+      {/* Preview area */}
+      <div style={{ height: 180, background: gradient, position: 'relative', overflow: 'hidden' }}>
+        {/* Dot grid overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `radial-gradient(${accent}18 1px, transparent 1px)`,
+            backgroundSize: '22px 22px',
+          }}
+        />
+        {/* Simulated content blocks */}
+        {lines.map((l, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              top: l.top,
+              left: 20,
+              width: l.width,
+              height: l.height,
+              borderRadius: 4,
+              background: accent,
+              opacity: l.opacity,
+            }}
+          />
+        ))}
+        {/* Decorative floating dots */}
+        {dots.map((color, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              right: 20 + i * 28,
+              bottom: 20,
+              width: 32 - i * 4,
+              height: 32 - i * 4,
+              borderRadius: '50%',
+              background: color,
+              opacity: 0.18 + i * 0.05,
+              filter: 'blur(6px)',
+            }}
+          />
+        ))}
+        {/* Vignette */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(15,13,26,0.6) 100%)' }} />
+      </div>
+    </div>
+  );
+}
 
 export default function Projects() {
   return (
     <section id="proyectos" className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
+
         {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,7 +170,7 @@ export default function Projects() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-center text-slate-400 text-sm mb-14"
         >
-          Una selección de los sistemas que construí.
+          Sistemas reales construidos de punta a punta.
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -68,94 +182,84 @@ export default function Projects() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.15 }}
               whileHover={{ y: -6 }}
-              className="group rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden hover:border-white/20 transition-all duration-300"
+              className="group rounded-2xl overflow-hidden transition-all duration-300"
               style={{
-                boxShadow: '0 0 0 0 transparent',
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.02)',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${p.accentColor}18`;
+                (e.currentTarget as HTMLElement).style.borderColor = `${p.accent}40`;
+                (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${p.accent}14`;
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 0 transparent';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                (e.currentTarget as HTMLElement).style.boxShadow = 'none';
               }}
             >
-              {/* Visual header */}
-              <div className={`relative h-52 bg-gradient-to-br ${p.gradient} overflow-hidden`}>
-                {/* Grid overlay */}
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: `
-                      linear-gradient(${p.gridColor}20 1px, transparent 1px),
-                      linear-gradient(90deg, ${p.gridColor}20 1px, transparent 1px)
-                    `,
-                    backgroundSize: '30px 30px',
-                  }}
-                />
-                {/* Radial fade */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0f0d1a]/60" />
+              {/* Browser mockup preview */}
+              <BrowserMockup
+                url={p.url}
+                accent={p.accent}
+                gradient={p.mockupGradient}
+                lines={p.mockupLines}
+                dots={p.mockupDots}
+              />
 
-                {/* Number & type badge */}
-                <div className="absolute top-4 left-4 flex items-center gap-3">
-                  <span className="font-mono text-4xl font-black opacity-20 text-white select-none">
-                    {p.number}
-                  </span>
+              {/* Content */}
+              <div className="p-6">
+                {/* Type + number */}
+                <div className="flex items-center justify-between mb-3">
                   <span
-                    className="text-[11px] px-2.5 py-1 rounded-full border"
+                    className="text-[11px] px-2.5 py-1 rounded-full"
                     style={{
-                      borderColor: `${p.accentColor}40`,
-                      background: `${p.accentColor}12`,
-                      color: `${p.accentColor}cc`,
+                      background: `${p.accent}14`,
+                      border: `1px solid ${p.accent}35`,
+                      color: `${p.accent}cc`,
                     }}
                   >
                     {p.type}
                   </span>
+                  <span className="font-mono text-3xl font-black select-none" style={{ color: 'rgba(255,255,255,0.04)' }}>
+                    {p.number}
+                  </span>
                 </div>
 
-                {/* Icon */}
-                <div className="absolute bottom-4 right-5 text-6xl opacity-30 group-hover:opacity-60 group-hover:scale-110 transition-all duration-300 select-none">
-                  {p.icon}
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-slate-100 mb-2">{p.title}</h3>
+                <h3 className="text-lg font-bold text-slate-100 mb-2">{p.title}</h3>
                 <p className="text-sm text-slate-400 leading-relaxed mb-5">{p.description}</p>
 
-                {/* Stack pills */}
+                {/* Stack */}
                 <div className="flex flex-wrap gap-2 mb-5">
                   {p.stack.map((tech) => (
                     <span
                       key={tech}
-                      className="text-xs px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/[0.08] text-slate-400"
+                      className="text-xs px-2.5 py-1 rounded-lg"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        color: '#64748b',
+                      }}
                     >
                       {tech}
                     </span>
                   ))}
                 </div>
 
-                {/* Repo link */}
-                {p.repo ? (
-                  <a
-                    href={p.repo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-200"
-                    style={{ color: p.accentColor }}
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                    </svg>
-                    Ver repositorio →
-                  </a>
-                ) : (
-                  <span className="text-xs text-slate-600 italic">Proyecto privado</span>
-                )}
+                {/* Live link */}
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-medium transition-opacity duration-200 hover:opacity-75"
+                  style={{ color: p.accent }}
+                >
+                  Ver proyecto
+                  <ExternalLink size={14} strokeWidth={2} />
+                </a>
               </div>
             </motion.article>
           ))}
         </div>
+
       </div>
     </section>
   );
