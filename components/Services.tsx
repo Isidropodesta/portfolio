@@ -1,51 +1,58 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import {
+  Code2,
+  LayoutDashboard,
+  ShoppingCart,
+  Cpu,
+  Palette,
+  MonitorSmartphone,
+  MessageCircle,
+  Wrench,
+} from 'lucide-react';
 
 const SERVICES = [
   {
-    num: '01',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
+    icon: Code2,
     title: 'Desarrollo Web',
-    desc: 'Sitios y aplicaciones web completas con diseño moderno. Desde una landing page hasta plataformas SaaS con panel de administración.',
-    tags: ['Next.js', 'React', 'Tailwind'],
+    desc: 'Construyo páginas, landing pages y sitios a medida, pensados para convertir visitantes en clientes.',
   },
   {
-    num: '02',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
+    icon: LayoutDashboard,
     title: 'Sistemas de Gestión',
-    desc: 'ERP y sistemas internos para digitalizar tu empresa. Administración de inventario, clientes, ventas y procesos operativos.',
-    tags: ['Node.js', 'PostgreSQL', 'Express'],
+    desc: 'Paneles de administración, dashboards y sistemas internos que ordenan y automatizan tu negocio.',
   },
   {
-    num: '03',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-      </svg>
-    ),
-    title: 'E-commerce',
-    desc: 'Tiendas online completas con catálogo, carrito de compras, medios de pago y panel de administración integrado.',
-    tags: ['Next.js', 'Stripe', 'PostgreSQL'],
+    icon: ShoppingCart,
+    title: 'Tiendas Online',
+    desc: 'E-commerce completo con catálogo, carrito y gestión de pedidos lista para vender.',
   },
   {
-    num: '04',
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-    title: 'APIs & Integraciones',
-    desc: 'APIs REST robustas e integraciones con servicios externos. Conecto tus sistemas entre sí y con plataformas de terceros.',
-    tags: ['Node.js', 'REST', 'Docker'],
+    icon: Cpu,
+    title: 'APIs y Backend',
+    desc: 'Servicios, integraciones y bases de datos robustas que sostienen cualquier aplicación.',
+  },
+  {
+    icon: Palette,
+    title: 'Diseño UI/UX',
+    desc: 'Interfaces modernas, intuitivas y atractivas centradas en la experiencia del usuario.',
+  },
+  {
+    icon: MonitorSmartphone,
+    title: 'Multiplataforma',
+    desc: 'Todo lo que construyo funciona perfecto en celular, tablet y computadora.',
+    featured: true,
+  },
+  {
+    icon: MessageCircle,
+    title: 'Consultoría',
+    desc: 'Analizo tu negocio, detecto oportunidades y diseño un plan tecnológico a tu medida.',
+  },
+  {
+    icon: Wrench,
+    title: 'Mantenimiento',
+    desc: 'Actualizaciones, mejoras y soporte continuo para que tu sistema funcione sin interrupciones.',
   },
 ];
 
@@ -53,61 +60,106 @@ export default function Services() {
   return (
     <section id="servicios" className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
+
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-14"
+          className="text-center mb-14"
         >
-          <p className="text-[11px] text-accent font-mono uppercase tracking-[0.18em] mb-3">Servicios</p>
-          <h2 className="text-4xl sm:text-5xl font-bold leading-tight">
-            Qué{' '}
-            <span className="gradient-text">construyo</span>
+          <h2
+            className="font-bold leading-tight mb-4"
+            style={{ fontSize: 'clamp(36px, 5vw, 52px)', letterSpacing: '-0.02em' }}
+          >
+            <span style={{ color: '#ffffff' }}>Construyo tu </span>
+            <span className="gradient-text">Sistema Digital</span>
           </h2>
-          <p className="text-slate-400 mt-4 text-sm max-w-lg leading-relaxed">
-            De la idea al producto. Me encargo de todo el stack — desde el diseño de la base de datos hasta la interfaz que ve el usuario.
+          <p style={{ fontSize: 16, color: '#5a7d99', maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
+            Soluciones tecnológicas a medida para llevar tu idea a un producto real, funcional y escalable.
           </p>
         </motion.div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {SERVICES.map((s, i) => (
-            <motion.div
-              key={s.num}
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.55, delay: i * 0.08 }}
-              className="group relative rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 hover:border-accent/25 hover:bg-white/[0.05] transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-            >
-              {/* Número decorativo de fondo */}
-              <span className="absolute top-4 right-5 font-mono text-5xl font-black text-white/[0.03] select-none group-hover:text-accent/[0.05] transition-colors duration-300">
-                {s.num}
-              </span>
+        {/* Grid 4-2-1 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {SERVICES.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <motion.div
+                key={s.title}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, delay: i * 0.06 }}
+                className="group"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: s.featured
+                    ? '1px solid rgba(59,158,255,0.45)'
+                    : '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 16,
+                  padding: 28,
+                  transition: 'border-color 0.2s, transform 0.2s',
+                  cursor: 'default',
+                }}
+                whileHover={{ y: -4 }}
+                onMouseEnter={(e) => {
+                  if (!s.featured)
+                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(59,158,255,0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!s.featured)
+                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)';
+                }}
+              >
+                {/* Ícono */}
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    background: 'rgba(59,158,255,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#3b9eff',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Icon size={20} strokeWidth={1.75} />
+                </div>
 
-              {/* Icono */}
-              <div className="mb-4 w-10 h-10 rounded-xl bg-accent/[0.08] border border-accent/15 flex items-center justify-center text-accent group-hover:bg-accent/15 transition-colors duration-300">
-                {s.icon}
-              </div>
+                {/* Título */}
+                <p
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: '#eaf2ff',
+                    marginTop: 16,
+                    fontFamily: "'Space Grotesk', sans-serif",
+                  }}
+                >
+                  {s.title}
+                </p>
 
-              <h3 className="text-base font-bold text-slate-100 mb-2">{s.title}</h3>
-              <p className="text-sm text-slate-400 leading-relaxed mb-4">{s.desc}</p>
-
-              <div className="flex flex-wrap gap-1.5">
-                {s.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[11px] px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.07] text-slate-500"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          ))}
+                {/* Descripción */}
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: '#5a7d99',
+                    lineHeight: 1.7,
+                    marginTop: 8,
+                    fontFamily: "'DM Sans', 'Space Grotesk', sans-serif",
+                  }}
+                >
+                  {s.desc}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
+
       </div>
     </section>
   );
