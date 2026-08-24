@@ -60,7 +60,7 @@ function detectKey(input: string): ChipKey | null {
 }
 
 const CHAT_OVERLAP     = 120;
-const CHAT_PADDING_TOP = 160;
+const CHAT_PADDING_TOP = 20;
 
 const MSG_FONT = "'DM Sans', 'Space Grotesk', sans-serif";
 
@@ -266,8 +266,13 @@ export default function Hero() {
 
           {/* Chips */}
           <div
-            className="px-4 py-3 flex flex-wrap gap-1.5"
-            style={{ borderTop: '1px solid rgba(59,158,255,0.07)' }}
+            className="px-4 py-3"
+            style={{
+              borderTop: '1px solid rgba(59,158,255,0.07)',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 8,
+            }}
           >
             {CHIPS.map((chip) => (
               <button
@@ -284,6 +289,8 @@ export default function Hero() {
                   color: '#3b9eff',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
+                  width: '100%',
+                  textAlign: 'center',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = 'rgba(59,158,255,0.1)';
