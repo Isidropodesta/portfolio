@@ -44,12 +44,14 @@ const PROJECTS = [
 
 function BrowserMockup({
   url,
+  title,
   accent,
   gradient,
   lines,
   dots,
 }: {
   url: string;
+  title: string;
   accent: string;
   gradient: string;
   lines: { top: number; width: string; opacity: number; height: number }[];
@@ -94,17 +96,25 @@ function BrowserMockup({
       </div>
 
       {/* Preview area */}
-      <div style={{ height: 180, background: gradient, overflow: 'hidden' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`}
-          alt={`Preview de ${url}`}
-          style={{ width: '100%', height: 180, objectFit: 'cover', objectPosition: 'top' }}
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.parentElement!.style.background = gradient;
+      <div style={{ width: '100%', height: 180, overflow: 'hidden', position: 'relative', background: gradient }}>
+        <iframe
+          src={url}
+          style={{
+            width: '200%',
+            height: '400px',
+            border: 'none',
+            transform: 'scale(0.5)',
+            transformOrigin: 'top left',
+            pointerEvents: 'none',
           }}
+          loading="lazy"
+          title={title}
         />
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to bottom, transparent 60%, rgba(15,13,26,0.8) 100%)',
+        }} />
       </div>
     </div>
   );
@@ -165,6 +175,7 @@ export default function Projects() {
               {/* Browser mockup preview */}
               <BrowserMockup
                 url={p.url}
+                title={p.title}
                 accent={p.accent}
                 gradient={p.mockupGradient}
                 lines={p.mockupLines}
