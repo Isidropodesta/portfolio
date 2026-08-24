@@ -47,8 +47,8 @@ function detectKey(input: string): ChipKey | null {
 
 // El chat sube CHAT_OVERLAP px sobre el avatar (tapa los pies).
 // CHAT_PADDING_TOP empuja el contenido por debajo del área del avatar.
-const CHAT_OVERLAP    = 80;
-const CHAT_PADDING_TOP = 120;
+const CHAT_OVERLAP    = 120;
+const CHAT_PADDING_TOP = 160;
 
 export default function Hero() {
   const [messages, setMessages] = useState<Message[]>([

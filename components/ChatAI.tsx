@@ -203,16 +203,6 @@ export default function ChatAI() {
 
             {/* ── Chat card (left on desktop) ─────────────────────────────── */}
             <div className="flex-1 min-w-0 order-last md:order-first bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(59,158,255,0.07)]">
-              {/* Header */}
-              <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.07] bg-white/[0.02]">
-                <motion.span
-                  animate={{ opacity: [1, 0.4, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-2 h-2 rounded-full bg-accent inline-block"
-                />
-                <span className="text-sm text-slate-400 font-mono">IP Assistant · Online</span>
-              </div>
-
               {/* Messages */}
               <div className="px-4 py-4 flex flex-col gap-3 max-h-64 overflow-y-auto scroll-smooth">
                 <AnimatePresence initial={false}>
