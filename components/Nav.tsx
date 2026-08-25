@@ -108,13 +108,12 @@ export default function Nav() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'border-b border-white/5 shadow-[0_1px_20px_rgba(0,0,0,0.4)]'
-          : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 ${
+        scrolled ? 'border-b border-white/5' : ''
       }`}
       style={{
         background: scrolled ? 'rgba(7,11,20,0.95)' : 'transparent',
+        transition: 'background 0.3s ease',
         transform: 'translateZ(0)',
         willChange: 'transform',
       }}
