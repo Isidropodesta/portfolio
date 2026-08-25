@@ -40,7 +40,9 @@ export default function About() {
                   padding: '6px 14px',
                 }}
               >
-                <span
+                <motion.span
+                  animate={{ opacity: [1, 0.25, 1] }}
+                  transition={{ duration: 1.6, repeat: Infinity }}
                   className="inline-block"
                   style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }}
                 />

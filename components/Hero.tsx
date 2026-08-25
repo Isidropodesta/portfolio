@@ -108,7 +108,6 @@ export default function Hero() {
     <section
       id="inicio"
       className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-10 dot-grid overflow-hidden"
-      style={{ isolation: 'isolate' }}
     >
       <div className="relative w-full max-w-[520px] flex flex-col items-center">
 
