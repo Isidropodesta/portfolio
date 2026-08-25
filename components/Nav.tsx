@@ -97,12 +97,27 @@ function LangSelector() {
 
 export default function Nav() {
   const { t } = useLanguage();
+  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 border-b border-white/5"
-      style={{ background: '#0a0d18', transform: 'translateZ(0)' }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'border-b border-white/5 shadow-[0_1px_20px_rgba(0,0,0,0.4)]'
+          : 'bg-transparent'
+      }`}
+      style={{
+        background: scrolled ? 'rgba(7,11,20,0.95)' : 'transparent',
+        transform: 'translateZ(0)',
+        willChange: 'transform',
+      }}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         {/* Logo */}
