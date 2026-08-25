@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/context/LanguageContext';
 
 const SOCIALS = [
   {
@@ -53,6 +54,7 @@ const INPUT =
   'w-full bg-white/[0.04] border border-white/[0.09] rounded-xl px-4 py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-accent/45 focus:bg-white/[0.07] transition-all duration-200';
 
 export default function Contact() {
+  const { t } = useLanguage();
   const [state, setState] = useState<FormState>('idle');
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
 
@@ -88,13 +90,12 @@ export default function Contact() {
           transition={{ duration: 0.6 }}
           className="text-center mb-14"
         >
-          <h2 className="text-4xl sm:text-5xl font-bold text-slate-100">¿Tenés un proyecto?</h2>
+          <h2 className="text-4xl sm:text-5xl font-bold text-slate-100">{t.contact.title}</h2>
           <p className="text-3xl sm:text-4xl font-bold mt-2">
-            <span className="gradient-text">Construyámoslo juntos.</span>
+            <span className="gradient-text">{t.contact.subtitle}</span>
           </p>
           <p className="text-slate-400 mt-5 max-w-lg mx-auto leading-relaxed text-sm">
-            Estoy buscando mis primeros clientes para desarrollar sistemas web completos. Si necesitás una
-            aplicación, sistema de gestión, tienda online o cualquier solución digital, hablemos sin compromiso.
+            {t.contact.description}
           </p>
         </motion.div>
 
@@ -135,7 +136,7 @@ export default function Contact() {
               whileTap={{ scale: 0.97 }}
               className="flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-[#25d366] hover:bg-[#22c55e] text-white font-semibold text-sm transition-colors duration-200 shadow-[0_0_28px_rgba(37,211,102,0.25)]"
             >
-              📲 Escribime por WhatsApp
+              {t.contact.whatsappBtn}
             </motion.a>
           </motion.div>
 
@@ -149,13 +150,13 @@ export default function Contact() {
             className="flex flex-col gap-4"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input className={INPUT} placeholder="Nombre" value={form.name} onChange={set('name')} required />
-              <input className={INPUT} placeholder="Email" type="email" value={form.email} onChange={set('email')} required />
+              <input className={INPUT} placeholder={t.contact.namePlaceholder}    value={form.name}    onChange={set('name')}    required />
+              <input className={INPUT} placeholder={t.contact.emailPlaceholder}   value={form.email}   onChange={set('email')}   type="email" required />
             </div>
-            <input className={INPUT} placeholder="Asunto" value={form.subject} onChange={set('subject')} required />
+            <input className={INPUT} placeholder={t.contact.subjectPlaceholder}   value={form.subject} onChange={set('subject')} required />
             <textarea
               className={`${INPUT} resize-none`}
-              placeholder="Mensaje"
+              placeholder={t.contact.messagePlaceholder}
               rows={5}
               value={form.message}
               onChange={set('message')}
@@ -169,16 +170,18 @@ export default function Contact() {
               whileTap={{ scale: 0.98 }}
               className="px-6 py-3.5 rounded-xl bg-accent hover:bg-accent/90 text-white font-semibold text-sm transition-all duration-200 disabled:opacity-55 disabled:cursor-not-allowed shadow-[0_0_24px_rgba(59,158,255,0.28)]"
             >
-              {state === 'sending' ? 'Enviando...' : 'Enviar mensaje →'}
+              {state === 'sending' ? t.contact.sending : t.contact.send}
             </motion.button>
 
             {state === 'success' && (
-              <p className="text-green-400 text-sm text-center">¡Mensaje enviado! Te respondo pronto 🙌</p>
+              <p className="text-green-400 text-sm text-center">{t.contact.success}</p>
             )}
             {state === 'error' && (
               <p className="text-red-400 text-sm text-center">
-                Error al enviar. Escribime directo por{' '}
-                <a href="https://wa.me/5492615112980" className="underline underline-offset-2">WhatsApp</a>.
+                {t.contact.errorPrefix}{' '}
+                <a href="https://wa.me/5492615112980" className="underline underline-offset-2">
+                  {t.contact.errorLink}
+                </a>.
               </p>
             )}
           </motion.form>

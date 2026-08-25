@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/context/LanguageContext';
 
 const TECHS = [
   { name: 'React', color: '#61dafb' },
@@ -59,6 +60,7 @@ const SIZE = 380;
 const PERSP = RADIUS * 3.5;
 
 export default function Skills() {
+  const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rotRef = useRef({ ax: 0.25, ay: 0 });
   const dragRef = useRef({ active: false, lastX: 0, lastY: 0 });
@@ -175,10 +177,10 @@ export default function Skills() {
           className="text-center mb-14"
         >
           <h2 className="text-4xl sm:text-5xl font-bold">
-            Mis{' '}
-            <span className="gradient-text">Habilidades</span>
+            {t.skills.title1}
+            <span className="gradient-text">{t.skills.title2}</span>
           </h2>
-          <p className="text-slate-500 mt-3 text-sm">Arrastrá el globo para explorarlo</p>
+          <p className="text-slate-500 mt-3 text-sm">{t.skills.subtitle}</p>
         </motion.div>
 
         <motion.div

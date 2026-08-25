@@ -3,55 +3,20 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
+import { useLanguage, type ChipKey } from '@/context/LanguageContext';
 
 const AVATAR_URL = 'https://i.imgur.com/W1FcJ2c.png';
 const PAGE_BG    = '#0f0d1a';
 
 type Message = { role: 'user' | 'bot'; text: string; hasWhatsApp?: boolean };
 
-const CHIPS = [
-  { label: '¿Quién es Isidro?',        key: 'quien'     },
-  { label: '¿Qué sistemas construís?', key: 'sistemas'  },
-  { label: '¿Cuánto cuesta?',          key: 'costo'     },
-  { label: '¿Cómo es el proceso?',     key: 'proceso'   },
-  { label: '¿Manejás plazos?',         key: 'plazos'    },
-  { label: '¿Cómo contratarme?',       key: 'contratar' },
-] as const;
-
-type ChipKey = typeof CHIPS[number]['key'];
-
-const RESPONSES: Record<ChipKey, { text: string; hasWhatsApp?: boolean }> = {
-  quien: {
-    text: 'Soy estudiante de último año de Ingeniería en Sistemas en la UTN Mendoza. Tengo una mentalidad orientada a resolver problemas reales — no me interesa el código por el código, sino lo que ese código puede hacer por una empresa o persona.',
-  },
-  sistemas: {
-    text: 'Construyo sistemas web completos desde cero: páginas web, sistemas de gestión, tiendas online y APIs. Me encargo de todo — desde la base de datos hasta lo que ve el usuario final.',
-  },
-  costo: {
-    text: 'Depende del proyecto — no hay un precio fijo porque cada sistema es diferente. Lo que sí puedo decirte es que la consulta inicial es completamente gratuita. Charlamos, entiendo qué necesitás y ahí te doy un presupuesto claro y sin sorpresas.',
-    hasWhatsApp: true,
-  },
-  proceso: {
-    text: 'Arrancamos con una videollamada o reunión personal donde me contás todo lo que querés lograr — funcionalidades, plazos, ideas. A partir de ahí defino los alcances del proyecto y empezamos.',
-    hasWhatsApp: true,
-  },
-  plazos: {
-    text: 'Los plazos dependen de la complejidad del proyecto. Desde el arranque definimos juntos una fecha estimada de entrega y trabajo para cumplirla.',
-    hasWhatsApp: true,
-  },
-  contratar: {
-    text: 'La forma más directa es por WhatsApp — solemos arrancar con una charla de 15 minutos para entender qué necesitás. Sin compromisos, sin formularios, solo una conversación.',
-    hasWhatsApp: true,
-  },
-};
-
 const KEYWORD_MAP: Array<{ keywords: string[]; key: ChipKey }> = [
-  { keywords: ['quién','quien','sos','isidro','vos','presentate'],                    key: 'quien'    },
-  { keywords: ['sistemas','construís','construis','web','aplicacion','desarrollas'],  key: 'sistemas' },
-  { keywords: ['cuesta','precio','costo','presupuesto','cobras','tarifa','cuánto'],   key: 'costo'    },
-  { keywords: ['proceso','cómo','como','empezamos','arranque','videollamada'],        key: 'proceso'  },
-  { keywords: ['plazo','entrega','tiempo','cuándo','cuando','demora'],                key: 'plazos'   },
-  { keywords: ['contratar','trabajo','servicio','freelance','empleo','contrato'],      key: 'contratar'},
+  { keywords: ['quién','quien','sos','isidro','vos','presentate','who','about'],                   key: 'quien'    },
+  { keywords: ['sistemas','construís','construis','web','aplicacion','desarrollas','build','make'], key: 'sistemas' },
+  { keywords: ['cuesta','precio','costo','presupuesto','cobras','tarifa','cuánto','cost','price'],  key: 'costo'    },
+  { keywords: ['proceso','cómo','como','empezamos','arranque','videollamada','process','start'],    key: 'proceso'  },
+  { keywords: ['plazo','entrega','tiempo','cuándo','cuando','demora','deadline','timeline'],        key: 'plazos'   },
+  { keywords: ['contratar','trabajo','servicio','freelance','empleo','contrato','hire','contact'],  key: 'contratar'},
 ];
 
 function detectKey(input: string): ChipKey | null {
@@ -65,15 +30,31 @@ const CHAT_PADDING_TOP = 20;
 const MSG_FONT = "'DM Sans', 'Space Grotesk', sans-serif";
 
 export default function Hero() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', text: 'Bienvenido a mi portfolio. ¿Qué te interesaría saber?' },
-  ]);
+  const { t } = useLanguage();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input,  setInput]  = useState('');
   const [typing, setTyping] = useState(false);
 
-  const avatarImgRef        = useRef<HTMLImageElement>(null);
-  const floatTween          = useRef<gsap.core.Tween | null>(null);
+  const avatarImgRef         = useRef<HTMLImageElement>(null);
+  const floatTween           = useRef<gsap.core.Tween | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const prevLang             = useRef(t.hero.welcome);
+
+  // Reset messages when language changes
+  useEffect(() => {
+    if (prevLang.current !== t.hero.welcome) {
+      prevLang.current = t.hero.welcome;
+      setMessages([{ role: 'bot', text: t.hero.welcome }]);
+      setInput('');
+      setTyping(false);
+    }
+  }, [t.hero.welcome]);
+
+  // Initial message
+  useEffect(() => {
+    setMessages([{ role: 'bot', text: t.hero.welcome }]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const startFloat = useCallback(() => {
     floatTween.current?.kill();
@@ -113,8 +94,8 @@ export default function Hero() {
     const key = chipKey ?? detectKey(trimmed);
     setTimeout(() => {
       const response = key
-        ? RESPONSES[key]
-        : { text: 'Podés preguntarme sobre quién es Isidro, qué sistemas construye, sus tecnologías o cómo contratarlo.' };
+        ? t.hero.responses[key]
+        : { text: t.hero.fallback };
       setTyping(false);
       setMessages((prev) => [
         ...prev,
@@ -130,11 +111,7 @@ export default function Hero() {
     >
       <div className="relative w-full max-w-[520px] flex flex-col items-center">
 
-        {/* ── AVATAR (z-1, detrás del chat z-10) ──────────────────────────────
-         *  height fija 300px — no genera espacio extra en el layout.
-         *  overflow: visible — la cabeza sobresale arriba sin clipping.
-         *  img: position absolute, bottom: 0, centrado con margin auto.
-         */}
+        {/* ── AVATAR ───────────────────────────────────────────────────────── */}
         <div
           style={{
             position: 'relative',
@@ -166,11 +143,7 @@ export default function Hero() {
           />
         </div>
 
-        {/* ── CHAT BOX (z-10) ─────────────────────────────────────────────────
-         *  background: PAGE_BG — opaco, tapa los pies del avatar sin transparencia.
-         *  marginTop: -CHAT_OVERLAP — sube 120px sobre el avatar.
-         *  paddingTop: CHAT_PADDING_TOP — contenido arranca debajo del torso.
-         */}
+        {/* ── CHAT BOX ─────────────────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -186,7 +159,7 @@ export default function Hero() {
             fontFamily: MSG_FONT,
           }}
         >
-          {/* Mensajes — padding-top compensa el área del avatar */}
+          {/* Messages */}
           <div
             ref={messagesContainerRef}
             className="px-5 pb-4 flex flex-col gap-2.5 overflow-y-auto"
@@ -201,7 +174,6 @@ export default function Hero() {
                   transition={{ duration: 0.25 }}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {/* Primer mensaje del bot: texto centrado sin burbuja */}
                   {i === 0 && msg.role === 'bot' ? (
                     <p
                       className="w-full text-center leading-relaxed"
@@ -230,7 +202,7 @@ export default function Hero() {
                           className="mt-2.5 flex items-center justify-center gap-2 text-white font-semibold transition-all hover:opacity-90 hover:scale-[1.02]"
                           style={{ padding: '9px 14px', borderRadius: 12, fontSize: 13, background: '#25d366' }}
                         >
-                          Escribime por WhatsApp
+                          {t.hero.whatsappBtn}
                         </a>
                       )}
                     </div>
@@ -274,7 +246,7 @@ export default function Hero() {
               gap: 8,
             }}
           >
-            {CHIPS.map((chip) => (
+            {t.hero.chips.map((chip) => (
               <button
                 key={chip.key}
                 onClick={() => sendMessage(chip.label, chip.key)}
@@ -317,7 +289,7 @@ export default function Hero() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(input); }}
-              placeholder="Escribí tu pregunta..."
+              placeholder={t.hero.placeholder}
               className="flex-1 text-slate-200 placeholder:text-slate-500 focus:outline-none transition-all duration-200"
               style={{
                 borderRadius: 14,

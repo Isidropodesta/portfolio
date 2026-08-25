@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/context/LanguageContext';
 
 const TECHS = [
   'React', 'Next.js', 'Node.js', 'PostgreSQL', 'TypeScript',
@@ -13,6 +14,8 @@ const B = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function About() {
+  const { t } = useLanguage();
+
   return (
     <section id="sobre-mi" className="py-24 px-4">
       <div className="mx-auto" style={{ maxWidth: 820 }}>
@@ -24,7 +27,7 @@ export default function About() {
         >
           <div className="flex flex-col-reverse md:flex-row md:items-start gap-10">
 
-            {/* ── Columna texto ──────────────────────────────────────────────── */}
+            {/* ── Text column ──────────────────────────────────────────────── */}
             <div className="flex-1 min-w-0">
 
               {/* Badge */}
@@ -44,11 +47,11 @@ export default function About() {
                   style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }}
                 />
                 <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 500, letterSpacing: '0.06em' }}>
-                  Disponible para proyectos
+                  {t.about.badge}
                 </span>
               </div>
 
-              {/* Nombre */}
+              {/* Name */}
               <h2
                 className="mb-3"
                 style={{
@@ -73,7 +76,7 @@ export default function About() {
                   fontFamily: "'Space Grotesk', sans-serif",
                 }}
               >
-                ESTUDIANTE DE INGENIERÍA EN SISTEMAS&nbsp;&nbsp;|&nbsp;&nbsp;FULL STACK DEVELOPER
+                {t.about.roles}
               </p>
 
               {/* Bio */}
@@ -86,42 +89,20 @@ export default function About() {
                   fontFamily: "'DM Sans', 'Space Grotesk', sans-serif",
                 }}
               >
-                <p>
-                  Estoy en el último año de <B>Ingeniería en Sistemas en la UTN Mendoza</B>, con proyección
-                  de recibirme a <B>fines de 2027 a los 23 años</B>. Un camino que elegí con convicción y
-                  que me formó no solo técnicamente, sino también en la forma de pensar y resolver problemas.
-                </p>
-                <p>
-                  No veo la tecnología como un fin en sí mismo, sino como una herramienta para{' '}
-                  <B>resolver problemas reales, mejorar procesos y generar valor</B> — para negocios locales,
-                  startups, ONGs y organizaciones de todo tipo que quieran crecer o digitalizarse.
-                </p>
-                <p>
-                  Construyo <B>sistemas web completos desde cero</B>: páginas, sistemas de gestión, tiendas
-                  online y APIs. Me encargo de todo, desde la <B>arquitectura de la base de datos</B> hasta
-                  lo que ve el usuario final. Primero entiendo el problema, después elijo la tecnología
-                  adecuada para resolverlo — no al revés.
-                </p>
-                <p>
-                  <B>Inglés</B> desarrollado a lo largo de toda la primaria y secundaria con{' '}
-                  <B>nivel avanzado</B>, complementado con formación en institutos privados especializados.
-                  Hoy puedo leer <B>documentación técnica</B>, escribir y mantener conversaciones con
-                  fluidez — lo que me permite trabajar con tecnologías, recursos y equipos internacionales
-                  sin barreras.
-                </p>
-                <p>
-                  Creo firmemente que en este campo quien deja de aprender, se queda atrás. Si un proyecto
-                  requiere una tecnología o solución que hoy no domino, no lo veo como un límite — lo veo
-                  como parte del trabajo. Siempre estoy dispuesto a capacitarme y encontrar la mejor
-                  solución para cada desafío.
-                </p>
+                {t.about.bio.map((segments, i) => (
+                  <p key={i}>
+                    {segments.map((seg, j) =>
+                      seg.b ? <B key={j}>{seg.t}</B> : seg.t
+                    )}
+                  </p>
+                ))}
               </div>
 
               {/* Tech pills */}
               <div className="flex flex-wrap gap-2">
-                {TECHS.map((t) => (
+                {TECHS.map((tech) => (
                   <span
-                    key={t}
+                    key={tech}
                     style={{
                       background: 'rgba(59,158,255,0.08)',
                       border: '1px solid rgba(59,158,255,0.2)',
@@ -133,13 +114,13 @@ export default function About() {
                       fontFamily: "'Space Grotesk', sans-serif",
                     }}
                   >
-                    {t}
+                    {tech}
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* ── Foto ──────────────────────────────────────────────────────── */}
+            {/* ── Photo ────────────────────────────────────────────────────── */}
             <div className="flex-shrink-0 flex md:block justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

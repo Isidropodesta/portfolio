@@ -1,17 +1,102 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useLanguage, type Lang } from '@/context/LanguageContext';
 
-const LINKS = [
-  { label: 'Inicio', href: '#inicio' },
-  { label: 'Sobre mí', href: '#sobre-mi' },
-  { label: 'Servicios', href: '#servicios' },
-  { label: 'Proyectos', href: '#proyectos' },
-  { label: 'Habilidades', href: '#habilidades' },
-  { label: 'Contacto', href: '#contacto' },
-];
+function LangSelector() {
+  const { lang, setLang, t } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const other: Lang = lang === 'es' ? 'en' : 'es';
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          background: 'transparent',
+          border: '1px solid rgba(59,158,255,0.25)',
+          color: '#3b9eff',
+          borderRadius: 8,
+          padding: '8px 16px',
+          fontSize: 13,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          fontFamily: "'Space Grotesk', sans-serif",
+          transition: 'border-color 0.2s',
+          whiteSpace: 'nowrap',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(59,158,255,0.5)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(59,158,255,0.25)'; }}
+      >
+        {t.nav.langLabel}
+        <span
+          style={{
+            display: 'inline-block',
+            transition: 'transform 0.2s',
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            fontSize: 10,
+            lineHeight: 1,
+          }}
+        >
+          ▾
+        </span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 6px)',
+            right: 0,
+            background: '#10111e',
+            border: '1px solid rgba(59,158,255,0.2)',
+            borderRadius: 8,
+            overflow: 'hidden',
+            minWidth: '100%',
+            zIndex: 200,
+          }}
+        >
+          <button
+            onClick={() => { setLang(other); setOpen(false); }}
+            style={{
+              display: 'block',
+              width: '100%',
+              padding: '9px 16px',
+              fontSize: 13,
+              color: '#3b9eff',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              textAlign: 'left',
+              fontFamily: "'Space Grotesk', sans-serif",
+              whiteSpace: 'nowrap',
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(59,158,255,0.08)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+          >
+            {t.nav.langOther}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Nav() {
+  const { t } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -40,7 +125,7 @@ export default function Nav() {
 
         {/* Desktop links */}
         <ul className="hidden md:flex items-center gap-7">
-          {LINKS.map((l) => (
+          {t.nav.links.map((l) => (
             <li key={l.href}>
               <a
                 href={l.href}
@@ -53,15 +138,18 @@ export default function Nav() {
           ))}
         </ul>
 
-        {/* CTA button */}
-        <a
-          href="https://wa.me/5492615112980"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-cta hidden md:inline-flex items-center px-4 py-2 rounded-lg bg-accent/10 border border-accent/30 text-accent text-sm font-medium hover:bg-accent/20 hover:border-accent/60 transition-colors duration-200"
-        >
-          Reservar llamada
-        </a>
+        {/* Desktop right actions */}
+        <div className="hidden md:flex items-center gap-3">
+          <a
+            href="https://wa.me/5492615112980"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-cta inline-flex items-center px-4 py-2 rounded-lg bg-accent/10 border border-accent/30 text-accent text-sm font-medium hover:bg-accent/20 hover:border-accent/60 transition-colors duration-200"
+          >
+            {t.nav.cta}
+          </a>
+          <LangSelector />
+        </div>
 
         {/* Mobile hamburger */}
         <button
@@ -83,7 +171,7 @@ export default function Nav() {
       {open && (
         <div className="md:hidden bg-[#0f0d1a]/95 backdrop-blur-md border-b border-white/5 px-4 py-5">
           <ul className="flex flex-col gap-4 mb-4">
-            {LINKS.map((l) => (
+            {t.nav.links.map((l) => (
               <li key={l.href}>
                 <a
                   href={l.href}
@@ -95,14 +183,17 @@ export default function Nav() {
               </li>
             ))}
           </ul>
-          <a
-            href="https://wa.me/5492615112980"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent text-sm font-medium"
-          >
-            Reservar llamada
-          </a>
+          <div className="flex items-center justify-between">
+            <a
+              href="https://wa.me/5492615112980"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent text-sm font-medium"
+            >
+              {t.nav.cta}
+            </a>
+            <LangSelector />
+          </div>
         </div>
       )}
     </nav>
