@@ -120,6 +120,8 @@ export default function Hero() {
             width: '100%',
             overflow: 'visible',
             flexShrink: 0,
+            transform: 'translateZ(0)',
+            willChange: 'transform',
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

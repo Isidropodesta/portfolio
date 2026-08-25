@@ -113,6 +113,12 @@ export default function Nav() {
           ? 'bg-[#0f0d1a]/85 backdrop-blur-md border-b border-white/5 shadow-[0_1px_20px_rgba(0,0,0,0.4)]'
           : 'bg-transparent'
       }`}
+      style={{
+        transform: 'translateZ(0)',
+        willChange: 'transform',
+        WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
+        isolation: 'isolate',
+      }}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         {/* Logo */}
