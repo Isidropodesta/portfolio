@@ -124,7 +124,7 @@ export default function Nav() {
         </a>
 
         {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-7">
+        <ul className="hidden lg:flex items-center gap-6">
           {t.nav.links.map((l) => (
             <li key={l.href}>
               <a
@@ -139,7 +139,7 @@ export default function Nav() {
         </ul>
 
         {/* Desktop right actions */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
           <a
             href="https://wa.me/5492615112980"
             target="_blank"
@@ -153,7 +153,7 @@ export default function Nav() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden p-2 text-slate-300 hover:text-accent transition-colors"
+          className="lg:hidden p-2 text-slate-300 hover:text-accent transition-colors"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
@@ -169,7 +169,7 @@ export default function Nav() {
 
       {/* Mobile dropdown */}
       {open && (
-        <div className="md:hidden bg-[#0f0d1a]/95 backdrop-blur-md border-b border-white/5 px-4 py-5">
+        <div className="lg:hidden bg-[#0f0d1a]/95 backdrop-blur-md border-b border-white/5 px-4 py-5">
           <ul className="flex flex-col gap-4 mb-4">
             {t.nav.links.map((l) => (
               <li key={l.href}>
