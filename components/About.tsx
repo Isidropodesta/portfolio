@@ -3,11 +3,6 @@
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 
-const TECHS = [
-  'React', 'Next.js', 'Node.js', 'PostgreSQL', 'TypeScript',
-  'JavaScript', 'Python', 'Docker', 'Git', 'Linux', 'Tailwind',
-  'HTML / CSS', 'REST APIs',
-];
 
 const B = ({ children }: { children: React.ReactNode }) => (
   <strong style={{ color: '#c8d8ec', fontWeight: 600 }}>{children}</strong>
@@ -98,26 +93,6 @@ export default function About() {
                 ))}
               </div>
 
-              {/* Tech pills */}
-              <div className="flex flex-wrap gap-2">
-                {TECHS.map((tech) => (
-                  <span
-                    key={tech}
-                    style={{
-                      background: 'rgba(59,158,255,0.08)',
-                      border: '1px solid rgba(59,158,255,0.2)',
-                      color: '#3b9eff',
-                      borderRadius: 8,
-                      padding: '5px 14px',
-                      fontSize: 12,
-                      fontWeight: 500,
-                      fontFamily: "'Space Grotesk', sans-serif",
-                    }}
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
             </div>
 
             {/* ── Photo ────────────────────────────────────────────────────── */}
